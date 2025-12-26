@@ -82,24 +82,49 @@ def preds_flip_average(model, transform, pil_img, device):
         avg[1], avg[3] = avg[3], avg[1]
     return avg
 
-def cap_bbox_by_stats(x1,y1,x2,y2, stats, cap_multiplier=1.2):
-    if not stats: return x1,y1,x2,y2
-    width = x2 - x1; height = y2 - y1
+def cap_bbox_by_stats(x1, y1, x2, y2, stats, cap_multiplier=1.5, rel_threshold=0.15):
+    """
+    Corta boxes muito grandes com base nas estatísticas do dataset, MAS:
+     - só reduz se a diferença for relevante (rel_threshold)
+     - usa cap_multiplier maior por padrão para evitar cortes agressivos
+    """
+    if not stats:
+        return x1, y1, x2, y2
+
+    width = x2 - x1
+    height = y2 - y1
     try:
         w99 = stats["width_p"][-1]
         h99 = stats["height_p"][-1]
     except Exception:
-        return x1,y1,x2,y2
+        return x1, y1, x2, y2
+
     max_w = min(cap_multiplier * w99, 0.95)
     max_h = min(cap_multiplier * h99, 0.95)
-    new_w = min(width, max_w)
-    new_h = min(height, max_h)
+
+    # Se já está dentro do limite, nada a fazer
+    if width <= max_w and height <= max_h:
+        return x1, y1, x2, y2
+
+    # Só reduzimos se a diferença for significativa (porcentagem relativa)
+    shrink_w = (width > max_w) and (((width - max_w) / width) > rel_threshold)
+    shrink_h = (height > max_h) and (((height - max_h) / height) > rel_threshold)
+
+    new_w = max_w if shrink_w else width
+    new_h = max_h if shrink_h else height
+
+    # Se nenhuma dimensão for reduzida significativamente, preserva original
     if new_w == width and new_h == height:
-        return x1,y1,x2,y2
-    cx = (x1 + x2) / 2.0; cy = (y1 + y2) / 2.0
-    x1n = max(0.0, cx - new_w/2.0); x2n = min(1.0, cx + new_w/2.0)
-    y1n = max(0.0, cy - new_h/2.0); y2n = min(1.0, cy + new_h/2.0)
+        return x1, y1, x2, y2
+
+    cx = (x1 + x2) / 2.0
+    cy = (y1 + y2) / 2.0
+    x1n = max(0.0, cx - new_w / 2.0)
+    x2n = min(1.0, cx + new_w / 2.0)
+    y1n = max(0.0, cy - new_h / 2.0)
+    y2n = min(1.0, cy + new_h / 2.0)
     return x1n, y1n, x2n, y2n
+
 
 def adjust_margin(x1,y1,x2,y2, stats=None, margin_cap=0.02):
     w = x2 - x1; h = y2 - y1
@@ -170,8 +195,8 @@ def predict_and_save(model, transform, metadata, image_path: Path, output_target
     pil = Image.open(str(image_path)).convert("RGB")
     avg = preds_flip_average(model, transform, pil, device)
     stats = metadata.get("bbox_stats", None)
-    x1,y1,x2,y2 = cap_bbox_by_stats(avg[0],avg[1],avg[2],avg[3], stats, cap_multiplier=1.2)
-    x1,y1,x2,y2 = adjust_margin(x1,y1,x2,y2, stats=stats, margin_cap=0.06)
+    x1,y1,x2,y2 = adjust_margin(avg[0], avg[1], avg[2], avg[3], stats=stats, margin_cap=0.02)
+    x1,y1,x2,y2 = cap_bbox_by_stats(x1, y1, x2, y2, stats, cap_multiplier=1.5, rel_threshold=0.15)
     img_bgr = cv2.imread(str(image_path))
     out_crop = crop_image(img_bgr, (x1,y1,x2,y2), out_size=None)
     if isinstance(output_target, Path) and output_target.is_dir():

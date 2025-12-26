@@ -1,584 +1,604 @@
 {
   "worst": [
     {
-      "iou": 0.7119425535202026,
-      "path": "dataset\\origin\\32.56_frame_021340.jpg"
-    },
-    {
-      "iou": 0.7261922955513,
-      "path": "dataset\\origin\\11.74_frame_042780.jpg"
-    },
-    {
-      "iou": 0.7332888841629028,
-      "path": "dataset\\origin\\32.8_frame_050720.jpg"
-    },
-    {
-      "iou": 0.7503750920295715,
-      "path": "dataset\\origin\\50.01_frame_017160.jpg"
-    },
-    {
-      "iou": 0.7843847274780273,
-      "path": "dataset\\origin\\10.7_frame_034530.jpg"
-    },
-    {
-      "iou": 0.7950125336647034,
-      "path": "dataset\\origin\\50.03_frame_058920.jpg"
-    },
-    {
-      "iou": 0.8019281029701233,
-      "path": "dataset\\origin\\37.19_frame_052390.jpg"
-    },
-    {
-      "iou": 0.8138895034790039,
-      "path": "dataset\\origin\\32.2_frame_026020.jpg"
-    },
-    {
-      "iou": 0.8152537941932678,
-      "path": "dataset\\origin\\33.45_frame_036480.jpg"
-    },
-    {
-      "iou": 0.8155300617218018,
-      "path": "dataset\\origin\\33.51_frame_022550.jpg"
-    },
-    {
-      "iou": 0.8167017102241516,
-      "path": "dataset\\origin\\30.46_frame_039240.jpg"
-    },
-    {
-      "iou": 0.8218668699264526,
-      "path": "dataset\\origin\\37.42_frame_051780.jpg"
-    },
-    {
-      "iou": 0.8244346976280212,
-      "path": "dataset\\origin\\36.52_frame_050730.jpg"
-    },
-    {
-      "iou": 0.8283132910728455,
-      "path": "dataset\\origin\\31.68_frame_045510.jpg"
-    },
-    {
-      "iou": 0.8336226940155029,
-      "path": "dataset\\origin\\31.38_frame_029190.jpg"
-    },
-    {
-      "iou": 0.8353214263916016,
-      "path": "dataset\\origin\\10.1_frame_043870.jpg"
-    },
-    {
-      "iou": 0.8370679020881653,
-      "path": "dataset\\origin\\32.24_frame_030210.jpg"
-    },
-    {
-      "iou": 0.8407259583473206,
-      "path": "dataset\\origin\\48.27_frame_050920.jpg"
-    },
-    {
-      "iou": 0.8408460021018982,
-      "path": "dataset\\origin\\12.11_frame_046680.jpg"
-    },
-    {
-      "iou": 0.8469398617744446,
-      "path": "dataset\\origin\\35.12_frame_052360.jpg"
-    },
-    {
-      "iou": 0.8512336611747742,
-      "path": "dataset\\origin\\31.89_frame_051590.jpg"
-    },
-    {
-      "iou": 0.8533767461776733,
-      "path": "dataset\\origin\\10.07_frame_029430.jpg"
-    },
-    {
-      "iou": 0.8592924475669861,
-      "path": "dataset\\origin\\47.92_frame_051790.jpg"
-    },
-    {
-      "iou": 0.8594959378242493,
-      "path": "dataset\\origin\\30.86_frame_041590.jpg"
-    },
-    {
-      "iou": 0.8637798428535461,
-      "path": "dataset\\origin\\10.7_frame_058730.jpg"
-    },
-    {
-      "iou": 0.8660048842430115,
-      "path": "dataset\\origin\\40.3_frame_034450.jpg"
-    },
-    {
-      "iou": 0.8667261600494385,
-      "path": "dataset\\origin\\12.39_frame_040620.jpg"
-    },
-    {
-      "iou": 0.8702276945114136,
-      "path": "dataset\\origin\\30.5_frame_052380.jpg"
-    },
-    {
-      "iou": 0.8725177049636841,
-      "path": "dataset\\origin\\11.67_frame_038710.jpg"
-    },
-    {
-      "iou": 0.8762495517730713,
-      "path": "dataset\\origin\\38.72_frame_051950.jpg"
-    },
-    {
-      "iou": 0.878094494342804,
-      "path": "dataset\\origin\\10.08_frame_007470.jpg"
-    },
-    {
-      "iou": 0.8783348202705383,
-      "path": "dataset\\origin\\30.7_frame_029760.jpg"
-    },
-    {
-      "iou": 0.8806362748146057,
-      "path": "dataset\\origin\\10.06_frame_011650.jpg"
-    },
-    {
-      "iou": 0.8855754733085632,
-      "path": "dataset\\origin\\33.33_frame_055640.jpg"
-    },
-    {
-      "iou": 0.8865286707878113,
-      "path": "dataset\\origin\\12.0_frame_043110.jpg"
-    },
-    {
-      "iou": 0.8866986036300659,
-      "path": "dataset\\origin\\10.07_frame_052300.jpg"
-    },
-    {
-      "iou": 0.8882396221160889,
-      "path": "dataset\\origin\\40.75_frame_040250.jpg"
-    },
-    {
-      "iou": 0.8882924318313599,
-      "path": "dataset\\origin\\30.17_frame_051940.jpg"
-    },
-    {
-      "iou": 0.8887704610824585,
-      "path": "dataset\\origin\\48.3_frame_049500.jpg"
-    },
-    {
-      "iou": 0.8888660073280334,
-      "path": "dataset\\origin\\30.36_frame_024230.jpg"
-    },
-    {
-      "iou": 0.8921822905540466,
-      "path": "dataset\\origin\\47.57_frame_051800.jpg"
-    },
-    {
-      "iou": 0.8934394717216492,
-      "path": "dataset\\origin\\10.02_frame_020230.jpg"
-    },
-    {
-      "iou": 0.895889163017273,
-      "path": "dataset\\origin\\30.96_frame_034910.jpg"
-    },
-    {
-      "iou": 0.8961338400840759,
-      "path": "dataset\\origin\\34.51_frame_028310.jpg"
-    },
-    {
-      "iou": 0.8969652652740479,
-      "path": "dataset\\origin\\32.99_frame_032720.jpg"
-    },
-    {
-      "iou": 0.897788941860199,
-      "path": "dataset\\origin\\49.98_frame_023580.jpg"
-    },
-    {
-      "iou": 0.9002547264099121,
-      "path": "dataset\\origin\\38.46_frame_050210.jpg"
-    },
-    {
-      "iou": 0.9025623798370361,
-      "path": "dataset\\origin\\11.72_frame_046710.jpg"
-    },
-    {
-      "iou": 0.9026667475700378,
-      "path": "dataset\\origin\\46.08_frame_040260.jpg"
-    },
-    {
-      "iou": 0.9041433334350586,
-      "path": "dataset\\origin\\50.09_frame_068060.jpg"
-    },
-    {
-      "iou": 0.906742513179779,
-      "path": "dataset\\origin\\40.55_frame_028300.jpg"
-    },
-    {
-      "iou": 0.9067502617835999,
-      "path": "dataset\\origin\\33.1_frame_050490.jpg"
-    },
-    {
-      "iou": 0.9077647924423218,
-      "path": "dataset\\origin\\50.12_frame_000840.jpg"
-    },
-    {
-      "iou": 0.9089703559875488,
-      "path": "dataset\\origin\\30.5_frame_041680.jpg"
-    },
-    {
-      "iou": 0.9098311066627502,
-      "path": "dataset\\origin\\46.61_frame_052160.jpg"
-    },
-    {
-      "iou": 0.9120334386825562,
-      "path": "dataset\\origin\\32.84_frame_042350.jpg"
-    },
-    {
-      "iou": 0.9120528101921082,
-      "path": "dataset\\origin\\39.93_frame_028400.jpg"
-    },
-    {
-      "iou": 0.9122874140739441,
-      "path": "dataset\\origin\\11.96_frame_029710.jpg"
-    },
-    {
-      "iou": 0.9131968021392822,
-      "path": "dataset\\origin\\11.84_frame_055910.jpg"
-    },
-    {
-      "iou": 0.9134488105773926,
-      "path": "dataset\\origin\\43.78_frame_039980.jpg"
-    },
-    {
-      "iou": 0.9147186279296875,
-      "path": "dataset\\origin\\11.86_frame_046580.jpg"
-    },
-    {
-      "iou": 0.9149011373519897,
-      "path": "dataset\\origin\\50.08_frame_072600.jpg"
-    },
-    {
-      "iou": 0.9169243574142456,
-      "path": "dataset\\origin\\41.48_frame_049840.jpg"
-    },
-    {
-      "iou": 0.9202934503555298,
-      "path": "dataset\\origin\\43.64_frame_036390.jpg"
-    },
-    {
-      "iou": 0.9223668575286865,
+      "iou": 0.7620214819908142,
       "path": "dataset\\origin\\35.74_frame_042130.jpg"
     },
     {
-      "iou": 0.9230093359947205,
-      "path": "dataset\\origin\\30.14_frame_029560.jpg"
-    },
-    {
-      "iou": 0.924821138381958,
-      "path": "dataset\\origin\\31.91_frame_050150.jpg"
-    },
-    {
-      "iou": 0.9263694882392883,
-      "path": "dataset\\origin\\31.57_frame_015990.jpg"
-    },
-    {
-      "iou": 0.9264918565750122,
-      "path": "dataset\\origin\\50.09_frame_023590.jpg"
-    },
-    {
-      "iou": 0.9268047213554382,
-      "path": "dataset\\origin\\35.33_frame_051810.jpg"
-    },
-    {
-      "iou": 0.927535355091095,
-      "path": "dataset\\origin\\40.13_frame_036420.jpg"
-    },
-    {
-      "iou": 0.928253173828125,
-      "path": "dataset\\origin\\11.66_frame_035210.jpg"
-    },
-    {
-      "iou": 0.9287456274032593,
-      "path": "dataset\\origin\\14.58_frame_035250.jpg"
-    },
-    {
-      "iou": 0.9291606545448303,
-      "path": "dataset\\origin\\50.09_frame_008350.jpg"
-    },
-    {
-      "iou": 0.9297630786895752,
-      "path": "dataset\\origin\\40.43_frame_042020.jpg"
-    },
-    {
-      "iou": 0.9299081563949585,
-      "path": "dataset\\origin\\50.12_frame_021080.jpg"
-    },
-    {
-      "iou": 0.9299163222312927,
-      "path": "dataset\\origin\\10.4_frame_036060.jpg"
-    },
-    {
-      "iou": 0.9301026463508606,
-      "path": "dataset\\origin\\10.04_frame_034450.jpg"
-    },
-    {
-      "iou": 0.9310566186904907,
-      "path": "dataset\\origin\\31.74_frame_050480.jpg"
-    },
-    {
-      "iou": 0.932286262512207,
-      "path": "dataset\\origin\\36.58_frame_034890.jpg"
-    },
-    {
-      "iou": 0.9324802756309509,
-      "path": "dataset\\origin\\31.22_frame_035590.jpg"
-    },
-    {
-      "iou": 0.934252142906189,
-      "path": "dataset\\origin\\33.33_frame_051620.jpg"
-    },
-    {
-      "iou": 0.9352627992630005,
-      "path": "dataset\\origin\\10.0_frame_037280.jpg"
-    },
-    {
-      "iou": 0.9362437725067139,
-      "path": "dataset\\origin\\44.75_frame_050220.jpg"
-    },
-    {
-      "iou": 0.9365766048431396,
-      "path": "dataset\\origin\\31.4_frame_035180.jpg"
-    },
-    {
-      "iou": 0.9370267391204834,
-      "path": "dataset\\origin\\33.41_frame_030590.jpg"
-    },
-    {
-      "iou": 0.938546359539032,
-      "path": "dataset\\origin\\32.1_frame_045320.jpg"
-    },
-    {
-      "iou": 0.940205454826355,
-      "path": "dataset\\origin\\31.62_frame_040980.jpg"
-    },
-    {
-      "iou": 0.9406908750534058,
-      "path": "dataset\\origin\\31.78_frame_042500.jpg"
-    },
-    {
-      "iou": 0.9417678713798523,
-      "path": "dataset\\origin\\35.44_frame_042520.jpg"
-    },
-    {
-      "iou": 0.9422706365585327,
-      "path": "dataset\\origin\\10.5_frame_033730.jpg"
-    },
-    {
-      "iou": 0.9423018097877502,
-      "path": "dataset\\origin\\30.18_frame_039250.jpg"
-    },
-    {
-      "iou": 0.9423240423202515,
-      "path": "dataset\\origin\\14.72_frame_031870.jpg"
-    },
-    {
-      "iou": 0.9433633685112,
-      "path": "dataset\\origin\\10.3_frame_041450.jpg"
-    },
-    {
-      "iou": 0.9447072744369507,
-      "path": "dataset\\origin\\10.01_frame_041500.jpg"
-    },
-    {
-      "iou": 0.9451006650924683,
-      "path": "dataset\\origin\\38.56_frame_035020.jpg"
-    },
-    {
-      "iou": 0.9470024108886719,
-      "path": "dataset\\origin\\42.67_frame_049830.jpg"
-    },
-    {
-      "iou": 0.9476121068000793,
-      "path": "dataset\\origin\\10.05_frame_041400.jpg"
-    },
-    {
-      "iou": 0.9483367800712585,
-      "path": "dataset\\origin\\33.99_frame_042050.jpg"
-    },
-    {
-      "iou": 0.948874831199646,
-      "path": "dataset\\origin\\40.2_frame_050100.jpg"
-    },
-    {
-      "iou": 0.9488872289657593,
-      "path": "dataset\\origin\\31.99_frame_041750.jpg"
-    },
-    {
-      "iou": 0.9491970539093018,
-      "path": "dataset\\origin\\40.27_frame_026010.jpg"
-    },
-    {
-      "iou": 0.9492183327674866,
-      "path": "dataset\\origin\\30.32_frame_029530.jpg"
-    },
-    {
-      "iou": 0.9494826197624207,
-      "path": "dataset\\origin\\37.48_frame_050760.jpg"
-    },
-    {
-      "iou": 0.9534875750541687,
-      "path": "dataset\\origin\\11.72_frame_026450.jpg"
-    },
-    {
-      "iou": 0.9535896182060242,
-      "path": "dataset\\origin\\30.25_frame_027960.jpg"
-    },
-    {
-      "iou": 0.9539526104927063,
-      "path": "dataset\\origin\\30.65_frame_049820.jpg"
-    },
-    {
-      "iou": 0.9543961882591248,
-      "path": "dataset\\origin\\31.73_frame_026000.jpg"
-    },
-    {
-      "iou": 0.9544007182121277,
-      "path": "dataset\\origin\\38.78_frame_028290.jpg"
-    },
-    {
-      "iou": 0.9544066786766052,
-      "path": "dataset\\origin\\30.78_frame_030600.jpg"
-    },
-    {
-      "iou": 0.9563961029052734,
-      "path": "dataset\\origin\\30.0_frame_021060.jpg"
-    },
-    {
-      "iou": 0.9583218097686768,
-      "path": "dataset\\origin\\45.43_frame_050880.jpg"
-    },
-    {
-      "iou": 0.9601851105690002,
-      "path": "dataset\\origin\\30.31_frame_044800.jpg"
-    },
-    {
-      "iou": 0.9603301286697388,
-      "path": "dataset\\origin\\10.08_frame_023210.jpg"
-    },
-    {
-      "iou": 0.9607851505279541,
-      "path": "dataset\\origin\\10.04_frame_064810.jpg"
-    },
-    {
-      "iou": 0.9611839056015015,
-      "path": "dataset\\origin\\45.15_frame_050690.jpg"
-    },
-    {
-      "iou": 0.9614989757537842,
-      "path": "dataset\\origin\\30.67_frame_049410.jpg"
-    },
-    {
-      "iou": 0.961901068687439,
-      "path": "dataset\\origin\\30.12_frame_042180.jpg"
-    },
-    {
-      "iou": 0.9628216028213501,
-      "path": "dataset\\origin\\43.28_frame_030030.jpg"
-    },
-    {
-      "iou": 0.9641876816749573,
-      "path": "dataset\\origin\\12.54_frame_021260.jpg"
-    },
-    {
-      "iou": 0.965309739112854,
-      "path": "dataset\\origin\\34.02_frame_050680.jpg"
-    },
-    {
-      "iou": 0.9659593105316162,
-      "path": "dataset\\origin\\36.99_frame_044770.jpg"
-    },
-    {
-      "iou": 0.9669378995895386,
-      "path": "dataset\\origin\\31.92_frame_029460.jpg"
-    },
-    {
-      "iou": 0.9671531319618225,
-      "path": "dataset\\origin\\10.01_frame_006770.jpg"
-    },
-    {
-      "iou": 0.9674329161643982,
-      "path": "dataset\\origin\\47.86_frame_036400.jpg"
-    },
-    {
-      "iou": 0.9682884812355042,
-      "path": "dataset\\origin\\30.29_frame_029680.jpg"
-    },
-    {
-      "iou": 0.9693472981452942,
-      "path": "dataset\\origin\\30.87_frame_016500.jpg"
-    },
-    {
-      "iou": 0.9693945050239563,
-      "path": "dataset\\origin\\38.07_frame_036450.jpg"
-    },
-    {
-      "iou": 0.9700967073440552,
-      "path": "dataset\\origin\\33.99_frame_028280.jpg"
-    },
-    {
-      "iou": 0.9705350399017334,
-      "path": "dataset\\origin\\31.28_frame_041620.jpg"
-    },
-    {
-      "iou": 0.9707346558570862,
+      "iou": 0.7859765887260437,
       "path": "dataset\\origin\\31.87_frame_021490.jpg"
     },
     {
-      "iou": 0.9713475108146667,
-      "path": "dataset\\origin\\36.69_frame_029670.jpg"
+      "iou": 0.7927050590515137,
+      "path": "dataset\\origin\\10.11_frame_011920.jpg"
     },
     {
-      "iou": 0.9718155860900879,
-      "path": "dataset\\origin\\41.71_frame_050120.jpg"
+      "iou": 0.8018171191215515,
+      "path": "dataset\\origin\\31.28_frame_041620.jpg"
     },
     {
-      "iou": 0.9733350872993469,
-      "path": "dataset\\origin\\10.04_frame_002910.jpg"
+      "iou": 0.8022321462631226,
+      "path": "dataset\\origin\\10.04_frame_064810.jpg"
     },
     {
-      "iou": 0.9739737510681152,
-      "path": "dataset\\origin\\31.67_frame_040990.jpg"
+      "iou": 0.8072951436042786,
+      "path": "dataset\\origin\\10.16_frame_059680.jpg"
     },
     {
-      "iou": 0.9742082357406616,
-      "path": "dataset\\origin\\10.02_frame_034670.jpg"
+      "iou": 0.8086568713188171,
+      "path": "dataset\\origin\\10.09_frame_061800.jpg"
     },
     {
-      "iou": 0.9765467047691345,
-      "path": "dataset\\origin\\10.07_frame_058770.jpg"
+      "iou": 0.8157480955123901,
+      "path": "dataset\\origin\\11.74_frame_042780.jpg"
     },
     {
-      "iou": 0.9776417016983032,
-      "path": "dataset\\origin\\10.3_frame_037300.jpg"
+      "iou": 0.8175800442695618,
+      "path": "dataset\\origin\\10.42_frame_014650.jpg"
     },
     {
-      "iou": 0.9776568412780762,
-      "path": "dataset\\origin\\31.37_frame_022790.jpg"
+      "iou": 0.8299027681350708,
+      "path": "dataset\\origin\\10.42_frame_065440.jpg"
     },
     {
-      "iou": 0.9804938435554504,
-      "path": "dataset\\origin\\37.06_frame_042480.jpg"
+      "iou": 0.8334803581237793,
+      "path": "dataset\\origin\\12.39_frame_040620.jpg"
     },
     {
-      "iou": 0.9815495610237122,
-      "path": "dataset\\origin\\12.41_frame_046700.jpg"
+      "iou": 0.8483405709266663,
+      "path": "dataset\\origin\\11.84_frame_055910.jpg"
     },
     {
-      "iou": 0.9819124937057495,
+      "iou": 0.8530048727989197,
       "path": "dataset\\origin\\12.0_frame_038650.jpg"
     },
     {
-      "iou": 0.9847448468208313,
+      "iou": 0.8606504797935486,
+      "path": "dataset\\origin\\10.44_frame_001220.jpg"
+    },
+    {
+      "iou": 0.8654842376708984,
+      "path": "dataset\\origin\\30.65_frame_049820.jpg"
+    },
+    {
+      "iou": 0.8664038777351379,
+      "path": "dataset\\origin\\10.06_frame_011650.jpg"
+    },
+    {
+      "iou": 0.8691942095756531,
+      "path": "dataset\\origin\\12.0_frame_043110.jpg"
+    },
+    {
+      "iou": 0.8705874085426331,
+      "path": "dataset\\origin\\30.29_frame_029680.jpg"
+    },
+    {
+      "iou": 0.8706064820289612,
+      "path": "dataset\\origin\\31.73_frame_026000.jpg"
+    },
+    {
+      "iou": 0.872696042060852,
       "path": "dataset\\origin\\35.96_frame_042510.jpg"
     },
     {
-      "iou": 0.9862431287765503,
+      "iou": 0.8743653297424316,
+      "path": "dataset\\origin\\10.38_frame_065460.jpg"
+    },
+    {
+      "iou": 0.8757272958755493,
+      "path": "dataset\\origin\\32.24_frame_030210.jpg"
+    },
+    {
+      "iou": 0.8792189955711365,
+      "path": "dataset\\origin\\10.4_frame_036060.jpg"
+    },
+    {
+      "iou": 0.8805802464485168,
+      "path": "dataset\\origin\\31.91_frame_050150.jpg"
+    },
+    {
+      "iou": 0.8819162249565125,
+      "path": "dataset\\origin\\11.86_frame_046580.jpg"
+    },
+    {
+      "iou": 0.8819179534912109,
+      "path": "dataset\\origin\\38.44_frame_035750.jpg"
+    },
+    {
+      "iou": 0.8819707036018372,
+      "path": "dataset\\origin\\30.67_frame_049410.jpg"
+    },
+    {
+      "iou": 0.8852622509002686,
+      "path": "dataset\\origin\\10.8_frame_000890.jpg"
+    },
+    {
+      "iou": 0.8854888677597046,
+      "path": "dataset\\origin\\10.04_frame_002910.jpg"
+    },
+    {
+      "iou": 0.8867343664169312,
+      "path": "dataset\\origin\\31.99_frame_041750.jpg"
+    },
+    {
+      "iou": 0.8869689702987671,
+      "path": "dataset\\origin\\10.01_frame_006770.jpg"
+    },
+    {
+      "iou": 0.8875305652618408,
+      "path": "dataset\\origin\\10.02_frame_020230.jpg"
+    },
+    {
+      "iou": 0.8877907991409302,
+      "path": "dataset\\origin\\31.22_frame_035590.jpg"
+    },
+    {
+      "iou": 0.8878250122070312,
+      "path": "dataset\\origin\\10.01_frame_041500.jpg"
+    },
+    {
+      "iou": 0.8886043429374695,
+      "path": "dataset\\origin\\10.18_frame_048250.jpg"
+    },
+    {
+      "iou": 0.8894502520561218,
+      "path": "dataset\\origin\\36.99_frame_044770.jpg"
+    },
+    {
+      "iou": 0.8901153206825256,
+      "path": "dataset\\origin\\32.84_frame_042350.jpg"
+    },
+    {
+      "iou": 0.8903128504753113,
+      "path": "dataset\\origin\\10.07_frame_058770.jpg"
+    },
+    {
+      "iou": 0.8911281228065491,
+      "path": "dataset\\origin\\10.9_frame_027800.jpg"
+    },
+    {
+      "iou": 0.8920528292655945,
+      "path": "dataset\\origin\\33.41_frame_030590.jpg"
+    },
+    {
+      "iou": 0.8922056555747986,
+      "path": "dataset\\origin\\10.12_frame_058650.jpg"
+    },
+    {
+      "iou": 0.8932979702949524,
+      "path": "dataset\\origin\\10.08_frame_051030.jpg"
+    },
+    {
+      "iou": 0.8935800194740295,
+      "path": "dataset\\origin\\30.14_frame_029560.jpg"
+    },
+    {
+      "iou": 0.8935850858688354,
+      "path": "dataset\\origin\\10.19_frame_037310.jpg"
+    },
+    {
+      "iou": 0.8946325778961182,
+      "path": "dataset\\origin\\33.33_frame_055640.jpg"
+    },
+    {
+      "iou": 0.8963031768798828,
+      "path": "dataset\\origin\\10.24_frame_031610.jpg"
+    },
+    {
+      "iou": 0.8974733352661133,
+      "path": "dataset\\origin\\30.25_frame_027960.jpg"
+    },
+    {
+      "iou": 0.8998176455497742,
+      "path": "dataset\\origin\\31.74_frame_050480.jpg"
+    },
+    {
+      "iou": 0.900080144405365,
+      "path": "dataset\\origin\\10.51_frame_008330.jpg"
+    },
+    {
+      "iou": 0.9021848440170288,
+      "path": "dataset\\origin\\10.11_frame_035360.jpg"
+    },
+    {
+      "iou": 0.9027904868125916,
+      "path": "dataset\\origin\\33.33_frame_051620.jpg"
+    },
+    {
+      "iou": 0.9029697179794312,
+      "path": "dataset\\origin\\10.48_frame_038350.jpg"
+    },
+    {
+      "iou": 0.9052640795707703,
+      "path": "dataset\\origin\\10.3_frame_037300.jpg"
+    },
+    {
+      "iou": 0.9056856632232666,
+      "path": "dataset\\origin\\10.17_frame_009980.jpg"
+    },
+    {
+      "iou": 0.907763659954071,
+      "path": "dataset\\origin\\10.23_frame_021160.jpg"
+    },
+    {
+      "iou": 0.9096894264221191,
+      "path": "dataset\\origin\\10.16_frame_030730.jpg"
+    },
+    {
+      "iou": 0.9107910394668579,
+      "path": "dataset\\origin\\33.99_frame_028280.jpg"
+    },
+    {
+      "iou": 0.9126812219619751,
+      "path": "dataset\\origin\\30.18_frame_039250.jpg"
+    },
+    {
+      "iou": 0.9136419296264648,
+      "path": "dataset\\origin\\31.57_frame_015990.jpg"
+    },
+    {
+      "iou": 0.9142096638679504,
+      "path": "dataset\\origin\\32.2_frame_026020.jpg"
+    },
+    {
+      "iou": 0.9143990278244019,
+      "path": "dataset\\origin\\31.4_frame_035180.jpg"
+    },
+    {
+      "iou": 0.915647566318512,
+      "path": "dataset\\origin\\30.12_frame_042180.jpg"
+    },
+    {
+      "iou": 0.9173174500465393,
+      "path": "dataset\\origin\\10.07_frame_052300.jpg"
+    },
+    {
+      "iou": 0.9206713438034058,
+      "path": "dataset\\origin\\31.92_frame_029460.jpg"
+    },
+    {
+      "iou": 0.9208256602287292,
+      "path": "dataset\\origin\\12.54_frame_021260.jpg"
+    },
+    {
+      "iou": 0.921104907989502,
+      "path": "dataset\\origin\\31.38_frame_029190.jpg"
+    },
+    {
+      "iou": 0.9212862253189087,
+      "path": "dataset\\origin\\10.02_frame_034670.jpg"
+    },
+    {
+      "iou": 0.921750009059906,
+      "path": "dataset\\origin\\30.87_frame_016500.jpg"
+    },
+    {
+      "iou": 0.9219754338264465,
+      "path": "dataset\\origin\\10.08_frame_007470.jpg"
+    },
+    {
+      "iou": 0.92572021484375,
+      "path": "dataset\\origin\\33.51_frame_022550.jpg"
+    },
+    {
+      "iou": 0.926388144493103,
+      "path": "dataset\\origin\\10.14_frame_064830.jpg"
+    },
+    {
+      "iou": 0.926407516002655,
+      "path": "dataset\\origin\\10.23_frame_019820.jpg"
+    },
+    {
+      "iou": 0.9264117479324341,
+      "path": "dataset\\origin\\33.45_frame_036480.jpg"
+    },
+    {
+      "iou": 0.9264242649078369,
+      "path": "dataset\\origin\\10.08_frame_023210.jpg"
+    },
+    {
+      "iou": 0.9269741177558899,
+      "path": "dataset\\origin\\12.41_frame_046700.jpg"
+    },
+    {
+      "iou": 0.9276565909385681,
+      "path": "dataset\\origin\\32.56_frame_021340.jpg"
+    },
+    {
+      "iou": 0.9281935691833496,
+      "path": "dataset\\origin\\30.46_frame_039240.jpg"
+    },
+    {
+      "iou": 0.9282952547073364,
+      "path": "dataset\\origin\\11.66_frame_035210.jpg"
+    },
+    {
+      "iou": 0.9285027980804443,
+      "path": "dataset\\origin\\10.3_frame_041450.jpg"
+    },
+    {
+      "iou": 0.9289095401763916,
+      "path": "dataset\\origin\\10.22_frame_020490.jpg"
+    },
+    {
+      "iou": 0.929002046585083,
+      "path": "dataset\\origin\\10.12_frame_048240.jpg"
+    },
+    {
+      "iou": 0.9303272366523743,
+      "path": "dataset\\origin\\10.11_frame_059950.jpg"
+    },
+    {
+      "iou": 0.9303940534591675,
+      "path": "dataset\\origin\\33.1_frame_050490.jpg"
+    },
+    {
+      "iou": 0.9307527542114258,
+      "path": "dataset\\origin\\10.09_frame_018050.jpg"
+    },
+    {
+      "iou": 0.930791974067688,
+      "path": "dataset\\origin\\10.13_frame_060760.jpg"
+    },
+    {
+      "iou": 0.9310665726661682,
+      "path": "dataset\\origin\\36.58_frame_034890.jpg"
+    },
+    {
+      "iou": 0.9323490262031555,
+      "path": "dataset\\origin\\35.44_frame_042520.jpg"
+    },
+    {
+      "iou": 0.9324132800102234,
+      "path": "dataset\\origin\\10.23_frame_016950.jpg"
+    },
+    {
+      "iou": 0.9362499713897705,
+      "path": "dataset\\origin\\10.05_frame_041400.jpg"
+    },
+    {
+      "iou": 0.9364986419677734,
+      "path": "dataset\\origin\\11.96_frame_029710.jpg"
+    },
+    {
+      "iou": 0.936597466468811,
+      "path": "dataset\\origin\\11.08_frame_028540.jpg"
+    },
+    {
+      "iou": 0.9370304942131042,
+      "path": "dataset\\origin\\31.68_frame_045510.jpg"
+    },
+    {
+      "iou": 0.9378827810287476,
+      "path": "dataset\\origin\\30.17_frame_051940.jpg"
+    },
+    {
+      "iou": 0.9380114674568176,
+      "path": "dataset\\origin\\30.78_frame_030600.jpg"
+    },
+    {
+      "iou": 0.9381577968597412,
+      "path": "dataset\\origin\\34.51_frame_028310.jpg"
+    },
+    {
+      "iou": 0.9387689828872681,
+      "path": "dataset\\origin\\10.23_frame_058820.jpg"
+    },
+    {
+      "iou": 0.939609706401825,
+      "path": "dataset\\origin\\35.12_frame_052360.jpg"
+    },
+    {
+      "iou": 0.9396482706069946,
+      "path": "dataset\\origin\\11.67_frame_038710.jpg"
+    },
+    {
+      "iou": 0.9409002065658569,
+      "path": "dataset\\origin\\32.1_frame_045320.jpg"
+    },
+    {
+      "iou": 0.9411029815673828,
+      "path": "dataset\\origin\\37.19_frame_052390.jpg"
+    },
+    {
+      "iou": 0.9412307143211365,
+      "path": "dataset\\origin\\10.0_frame_037280.jpg"
+    },
+    {
+      "iou": 0.9421316981315613,
+      "path": "dataset\\origin\\31.89_frame_051590.jpg"
+    },
+    {
+      "iou": 0.9425162672996521,
+      "path": "dataset\\origin\\31.67_frame_040990.jpg"
+    },
+    {
+      "iou": 0.9427624940872192,
+      "path": "dataset\\origin\\10.24_frame_051590.jpg"
+    },
+    {
+      "iou": 0.9430744647979736,
+      "path": "dataset\\origin\\36.69_frame_029670.jpg"
+    },
+    {
+      "iou": 0.94324791431427,
+      "path": "dataset\\origin\\30.5_frame_041680.jpg"
+    },
+    {
+      "iou": 0.9435713291168213,
+      "path": "dataset\\origin\\10.16_frame_001190.jpg"
+    },
+    {
+      "iou": 0.9439250230789185,
+      "path": "dataset\\origin\\11.72_frame_046710.jpg"
+    },
+    {
+      "iou": 0.9439969658851624,
+      "path": "dataset\\origin\\38.46_frame_050210.jpg"
+    },
+    {
+      "iou": 0.944297730922699,
+      "path": "dataset\\origin\\30.36_frame_024230.jpg"
+    },
+    {
+      "iou": 0.9450241923332214,
+      "path": "dataset\\origin\\10.17_frame_038940.jpg"
+    },
+    {
+      "iou": 0.945340633392334,
+      "path": "dataset\\origin\\31.62_frame_040980.jpg"
+    },
+    {
+      "iou": 0.945431649684906,
+      "path": "dataset\\origin\\10.7_frame_058730.jpg"
+    },
+    {
+      "iou": 0.9465046525001526,
+      "path": "dataset\\origin\\34.02_frame_050680.jpg"
+    },
+    {
+      "iou": 0.9472630620002747,
+      "path": "dataset\\origin\\30.5_frame_052380.jpg"
+    },
+    {
+      "iou": 0.947928249835968,
+      "path": "dataset\\origin\\10.19_frame_045520.jpg"
+    },
+    {
+      "iou": 0.9486264586448669,
+      "path": "dataset\\origin\\31.78_frame_042500.jpg"
+    },
+    {
+      "iou": 0.9491984248161316,
+      "path": "dataset\\origin\\37.06_frame_042480.jpg"
+    },
+    {
+      "iou": 0.94957035779953,
+      "path": "dataset\\origin\\36.52_frame_050730.jpg"
+    },
+    {
+      "iou": 0.9495991468429565,
+      "path": "dataset\\origin\\10.5_frame_033730.jpg"
+    },
+    {
+      "iou": 0.9502793550491333,
+      "path": "dataset\\origin\\10.9_frame_056230.jpg"
+    },
+    {
+      "iou": 0.9509757161140442,
       "path": "dataset\\origin\\10.1_frame_016360.jpg"
     },
     {
-      "iou": 0.9923945069313049,
-      "path": "dataset\\origin\\38.44_frame_035750.jpg"
+      "iou": 0.9518401026725769,
+      "path": "dataset\\origin\\10.19_frame_060880.jpg"
+    },
+    {
+      "iou": 0.951850414276123,
+      "path": "dataset\\origin\\10.07_frame_029430.jpg"
+    },
+    {
+      "iou": 0.9519147276878357,
+      "path": "dataset\\origin\\10.8_frame_064730.jpg"
+    },
+    {
+      "iou": 0.952365517616272,
+      "path": "dataset\\origin\\10.16_frame_038060.jpg"
+    },
+    {
+      "iou": 0.9533100724220276,
+      "path": "dataset\\origin\\30.0_frame_021060.jpg"
+    },
+    {
+      "iou": 0.9544385075569153,
+      "path": "dataset\\origin\\10.04_frame_034450.jpg"
+    },
+    {
+      "iou": 0.9544947147369385,
+      "path": "dataset\\origin\\35.33_frame_051810.jpg"
+    },
+    {
+      "iou": 0.9548647403717041,
+      "path": "dataset\\origin\\14.72_frame_031870.jpg"
+    },
+    {
+      "iou": 0.9556355476379395,
+      "path": "dataset\\origin\\37.42_frame_051780.jpg"
+    },
+    {
+      "iou": 0.9558594226837158,
+      "path": "dataset\\origin\\32.8_frame_050720.jpg"
+    },
+    {
+      "iou": 0.9565908908843994,
+      "path": "dataset\\origin\\14.58_frame_035250.jpg"
+    },
+    {
+      "iou": 0.9579612612724304,
+      "path": "dataset\\origin\\11.72_frame_026450.jpg"
+    },
+    {
+      "iou": 0.9596814513206482,
+      "path": "dataset\\origin\\38.07_frame_036450.jpg"
+    },
+    {
+      "iou": 0.9600903987884521,
+      "path": "dataset\\origin\\37.48_frame_050760.jpg"
+    },
+    {
+      "iou": 0.9602981209754944,
+      "path": "dataset\\origin\\10.91_frame_064770.jpg"
+    },
+    {
+      "iou": 0.9605848789215088,
+      "path": "dataset\\origin\\33.99_frame_042050.jpg"
+    },
+    {
+      "iou": 0.9610363245010376,
+      "path": "dataset\\origin\\30.32_frame_029530.jpg"
+    },
+    {
+      "iou": 0.9642489552497864,
+      "path": "dataset\\origin\\12.11_frame_046680.jpg"
+    },
+    {
+      "iou": 0.9654557704925537,
+      "path": "dataset\\origin\\31.37_frame_022790.jpg"
+    },
+    {
+      "iou": 0.9696196913719177,
+      "path": "dataset\\origin\\32.99_frame_032720.jpg"
+    },
+    {
+      "iou": 0.970420777797699,
+      "path": "dataset\\origin\\30.96_frame_034910.jpg"
+    },
+    {
+      "iou": 0.972133994102478,
+      "path": "dataset\\origin\\10.1_frame_043870.jpg"
+    },
+    {
+      "iou": 0.9735313653945923,
+      "path": "dataset\\origin\\30.31_frame_044800.jpg"
+    },
+    {
+      "iou": 0.9766876101493835,
+      "path": "dataset\\origin\\30.7_frame_029760.jpg"
+    },
+    {
+      "iou": 0.9784573316574097,
+      "path": "dataset\\origin\\30.86_frame_041590.jpg"
+    },
+    {
+      "iou": 0.9790139198303223,
+      "path": "dataset\\origin\\10.15_frame_011370.jpg"
+    },
+    {
+      "iou": 0.980043888092041,
+      "path": "dataset\\origin\\10.7_frame_034530.jpg"
+    },
+    {
+      "iou": 0.9876980781555176,
+      "path": "dataset\\origin\\10.12_frame_023130.jpg"
     }
   ]
 }
