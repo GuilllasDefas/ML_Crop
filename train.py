@@ -164,7 +164,7 @@ def giou_tensor(pred: torch.Tensor, target: torch.Tensor, eps=1e-6):
     return giou.clamp(min=-1.0, max=1.0)
 
 # ---------- training loop ----------
-def train_loop(train_loader, val_loader, device, epochs=20, lr=1e-4, save_dir="models"):
+def train_loop(train_loader, val_loader, device, epochs=12, lr=1e-4, save_dir="models"):
     os.makedirs(save_dir, exist_ok=True)
     model = build_model(pretrained=True).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-5)
@@ -234,8 +234,8 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--origins"); parser.add_argument("--crops")
-    parser.add_argument("--resize", type=int, nargs=2, default=(320,320))
-    parser.add_argument("--epochs", type=int, default=15); parser.add_argument("--batch", type=int, default=15)
+    parser.add_argument("--resize", type=int, nargs=2, default=(400,400))
+    parser.add_argument("--epochs", type=int, default=25); parser.add_argument("--batch", type=int, default=25)
     parser.add_argument("--lr", type=float, default=1e-4); parser.add_argument("--val-split", type=float, default=0.12)
     args = parser.parse_args()
 

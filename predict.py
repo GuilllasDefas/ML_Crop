@@ -11,6 +11,8 @@ import os
 import traceback
 from pathlib import Path
 from tkinter import Tk, filedialog, messagebox
+import argparse  # Para lidar com argumentos de linha de comando
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from PIL import Image
 import cv2
@@ -50,7 +52,7 @@ def load_checkpoint(model_path: Path, device: torch.device):
     model = build_model()
     model.load_state_dict(ckpt["model_state"])
     model.to(device); model.eval()
-    resize = tuple(metadata.get("resize", (320,320)))
+    resize = tuple(metadata.get("resize", (800,800)))
     mean = metadata.get("mean", [0.485,0.456,0.406])
     std = metadata.get("std", [0.229,0.224,0.225])
     transform = transforms.Compose([
@@ -195,7 +197,7 @@ def predict_and_save(model, transform, metadata, image_path: Path, output_target
     pil = Image.open(str(image_path)).convert("RGB")
     avg = preds_flip_average(model, transform, pil, device)
     stats = metadata.get("bbox_stats", None)
-    x1,y1,x2,y2 = adjust_margin(avg[0], avg[1], avg[2], avg[3], stats=stats, margin_cap=0.02)
+    x1,y1,x2,y2 = adjust_margin(avg[0], avg[1], avg[2], avg[3], stats=stats, margin_cap=0.005)
     x1,y1,x2,y2 = cap_bbox_by_stats(x1, y1, x2, y2, stats, cap_multiplier=1.5, rel_threshold=0.15)
     img_bgr = cv2.imread(str(image_path))
     out_crop = crop_image(img_bgr, (x1,y1,x2,y2), out_size=None)
@@ -211,7 +213,107 @@ def predict_and_save(model, transform, metadata, image_path: Path, output_target
     print(f"Saved: {out_path}")
     return out_path
 
+def debug_predict(model, transform, metadata, image_path: Path, output_dir: Path):
+    """
+    Gera imagens com diferentes configurações de margin_cap, cap_multiplier e rel_threshold,
+    pintando as áreas previstas ao invés de cortar e escrevendo os parâmetros na imagem.
+    """
+    device = next(model.parameters()).device
+    pil = Image.open(str(image_path)).convert("RGB")
+    avg = preds_flip_average(model, transform, pil, device)
+    stats = metadata.get("bbox_stats", None)
+    img_bgr = cv2.imread(str(image_path))
+
+    # Configurações de debug
+    margin_caps = [0.005, 0.01, 0.02]
+    cap_multipliers = [1.0, 1.5, 2.0]
+    rel_thresholds = [0.1, 0.15, 0.2]
+
+    for margin_cap in margin_caps:
+        for cap_multiplier in cap_multipliers:
+            for rel_threshold in rel_thresholds:
+                x1, y1, x2, y2 = adjust_margin(avg[0], avg[1], avg[2], avg[3], stats=stats, margin_cap=margin_cap)
+                x1, y1, x2, y2 = cap_bbox_by_stats(x1, y1, x2, y2, stats, cap_multiplier=cap_multiplier, rel_threshold=rel_threshold)
+                H, W = img_bgr.shape[:2]
+                x1_px, y1_px = int(x1 * W), int(y1 * H)
+                x2_px, y2_px = int(x2 * W), int(y2 * H)
+
+                # Cria uma cópia da imagem e pinta a área prevista
+                debug_img = img_bgr.copy()
+                cv2.rectangle(debug_img, (x1_px, y1_px), (x2_px, y2_px), (0, 255, 0), 2)
+
+                # Escreve os parâmetros na imagem
+                text = f"margin_cap: {margin_cap}, cap_multiplier: {cap_multiplier}, rel_threshold: {rel_threshold}"
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                font_scale = 0.5
+                thickness = 1
+                color = (0, 255, 0)  # Verde
+                text_position = (10, 30)  # Posição do texto na imagem
+                cv2.putText(debug_img, text, text_position, font, font_scale, color, thickness, cv2.LINE_AA)
+
+                # Gera o nome do arquivo de saída
+                out_name = f"{image_path.stem}_m{margin_cap}_c{cap_multiplier}_r{rel_threshold}.jpg"
+                out_path = output_dir / out_name
+                cv2.imwrite(str(out_path), debug_img)
+                print(f"Saved debug image: {out_path}")
+
+def process_images_async(model, transform, metadata, input_path: Path, output_target):
+    """
+    Processa imagens de uma pasta de forma assíncrona para melhorar a performance.
+    """
+    processed = 0
+    failed = []
+
+    def process_image(image_path):
+        try:
+            predict_and_save(model, transform, metadata, image_path, output_target)
+            return image_path, None
+        except Exception as e:
+            return image_path, str(e)
+
+    with ThreadPoolExecutor() as executor:
+        futures = {executor.submit(process_image, p): p for p in list_images(input_path)}
+        for future in as_completed(futures):
+            image_path, error = future.result()
+            if error:
+                failed.append((str(image_path), error))
+            else:
+                processed += 1
+
+    return processed, failed
+
 def gui_main():
+    parser = argparse.ArgumentParser(description="Crop prediction tool")
+    parser.add_argument("--debug", action="store_true", help="Ativa o modo debug")
+    args = parser.parse_args()
+
+    if args.debug:
+        root = Tk(); root.withdraw()
+        _focus_window(root)
+        img_file = filedialog.askopenfilename(title="Selecione a imagem para debug", filetypes=[("Imagens", "*.png;*.jpg;*.jpeg;*.bmp")], parent=root)
+        if not img_file:
+            root.destroy()
+            raise SystemExit("Imagem não selecionada.")
+        save_dir = filedialog.askdirectory(title="Selecione a pasta para salvar os resultados", parent=root)
+        if not save_dir:
+            root.destroy()
+            raise SystemExit("Pasta de saída não selecionada.")
+        root.destroy()
+
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model_path = Path("models/crop_localizer.pt")
+        if not model_path.exists():
+            alt = Path("models/crop_localizer.pth")
+            if alt.exists():
+                model_path = alt
+        if not model_path.exists():
+            raise SystemExit("Modelo ausente.")
+        model, transform, metadata = load_checkpoint(model_path, device)
+        model.to(device)
+
+        debug_predict(model, transform, metadata, Path(img_file), Path(save_dir))
+        return
+
     try:
         model_path, input_path, output_target = choose_paths()
     except SystemExit:
@@ -219,26 +321,26 @@ def gui_main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model, transform, metadata = load_checkpoint(model_path, device)
     model.to(device)
-    processed = 0; failed=[]
+    processed = 0
+    failed = []
     try:
         if input_path.is_file():
             try:
-                predict_and_save(model, transform, metadata, input_path, output_target); processed += 1
+                predict_and_save(model, transform, metadata, input_path, output_target)
+                processed += 1
             except Exception as e:
                 failed.append((str(input_path), str(e)))
         else:
-            for p in list_images(input_path):
-                try:
-                    predict_and_save(model, transform, metadata, p, output_target); processed += 1
-                except Exception as e:
-                    failed.append((str(p), str(e)))
+            # Processamento assíncrono para pastas
+            processed, failed = process_images_async(model, transform, metadata, input_path, output_target)
     except Exception:
         traceback.print_exc()
     finally:
         messagebox.showinfo("Concluído", f"Processados: {processed}\nFalhas: {len(failed)}")
         if failed:
             print("Failures:")
-            for a,b in failed: print(a, b)
+            for a, b in failed:
+                print(a, b)
 
 if __name__ == "__main__":
     gui_main()
