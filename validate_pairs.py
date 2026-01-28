@@ -31,7 +31,7 @@ def build_pairs(base_dir: Path) -> List[Tuple[Path, Path]]:
     return pairs
 
 class ThumbList(ttk.Frame):
-    def __init__(self, master, on_select, thumb_size=(96, 96)):
+    def __init__(self, master, on_select, thumb_size=(108, 108)):
         super().__init__(master)
         self.on_select = on_select
         self.thumb_size = thumb_size
@@ -84,10 +84,28 @@ class ValidatorApp:
         self.img_orig: Optional[Image.Image] = None
         self.img_edit: Optional[Image.Image] = None
         self.project_root = Path(__file__).resolve().parent
+        self._apply_dark_theme()  # Apply dark theme
         self._build_ui()
         self._bind_keys()
         if self.pairs:
             self.thumb_list._select(0)
+
+    def _apply_dark_theme(self):
+        """Apply a dark theme to the interface."""
+        self.root.configure(bg="#2e2e2e")
+        style = ttk.Style(self.root)
+        style.theme_use("clam")
+        style.configure("TFrame", background="#2e2e2e")
+        style.configure("TLabel", background="#2e2e2e", foreground="#ffffff")
+        style.configure("TButton", background="#444444", foreground="#ffffff")
+        style.configure("TScrollbar", background="#444444", troughcolor="#3a3a3a")
+        style.map("TButton", background=[("active", "#555555")])
+
+    def _bind_keys(self):
+        """Bind keys for navigation and actions."""
+        self.root.bind("<Right>", lambda _e: self.validate_current())  # Right arrow for validation
+        self.root.bind("<Left>", lambda _e: self.skip_current())       # Left arrow for skipping
+        self.root.bind("<Escape>", lambda _e: self.root.destroy())     # Escape to exit
 
     def _build_ui(self):
         self.root.title(f"Validação - {self.base_dir}")
@@ -121,8 +139,8 @@ class ValidatorApp:
         btn_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(10, 0))
         for i in range(4):
             btn_frame.columnconfigure(i, weight=1)
-        self.btn_validate = ttk.Button(btn_frame, text="Validar (Enter)", command=self.validate_current)
-        self.btn_skip = ttk.Button(btn_frame, text="Pular (Espaço)", command=self.skip_current)
+        self.btn_validate = ttk.Button(btn_frame, text="Validar (→)", command=self.validate_current)
+        self.btn_skip = ttk.Button(btn_frame, text="Pular (←)", command=self.skip_current)
         self.btn_exit = ttk.Button(btn_frame, text="Sair (Esc)", command=self.root.destroy)
         self.btn_open = ttk.Button(btn_frame, text="Abrir Pasta", command=self._choose_new_directory)
         self.btn_validate.grid(row=0, column=0, padx=(0, 6), sticky="ew")
@@ -134,11 +152,6 @@ class ValidatorApp:
         ttk.Label(right, textvariable=self.status_var, anchor="center").grid(
             row=3, column=0, columnspan=2, sticky="ew", pady=(8, 0)
         )
-
-    def _bind_keys(self):
-        self.root.bind("<Return>", lambda _e: self.validate_current())
-        self.root.bind("<space>", lambda _e: self.skip_current())
-        self.root.bind("<Escape>", lambda _e: self.root.destroy())
 
     def _on_select(self, index: int):
         self.current_index = index

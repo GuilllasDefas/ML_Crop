@@ -88,8 +88,8 @@ def predict_crop(model, image_path, img_size=300):
 class CropApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("✂️ Crop Inteligente - Precisão EXTREMA de Margens")
-        self.root.geometry("550x320")
+        self.root.title("✂️ Crop ML")
+        self.root.geometry("600x380")
         self.root.resizable(False, False)
         
         # Forçar primeiro plano
@@ -223,7 +223,7 @@ class CropApp:
                 self.bring_to_front()
                 
                 messagebox.showinfo("✅ Sucesso", 
-                                  f"Imagem cortada com precisão EXTREMA de margens!\n\n"
+                                  f"Imagem cortada!\n\n"
                                   f"Coordenadas: x={coords[0]} y={coords[1]} w={coords[2]} h={coords[3]}\n"
                                   f"Salva em: {out_path}")
         

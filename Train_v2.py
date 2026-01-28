@@ -1,4 +1,5 @@
 import os
+import time
 import cv2
 import numpy as np
 import torch
@@ -177,10 +178,10 @@ def combined_loss(pred, target, alpha=0.5):
 def train():
     # Configurações
     IMG_SIZE = 300
-    BATCH_SIZE = 24  # Ajustado para RTX 3060 Ti (8GB VRAM)
-    NUM_WORKERS = max(6, os.cpu_count() // 2)
+    BATCH_SIZE = 16  # Ajustado para RTX 3060 Ti (8GB VRAM)
+    NUM_WORKERS = os.cpu_count() if os.cpu_count() is not None else 4
     EPOCHS = 100
-    PATIENCE = 20  # Mais tolerante para convergência fina das margens
+    PATIENCE = 15  # Mais tolerante para convergência fina das margens
     
     # Carregar paths
     orig_dir = "dataset/origin"
@@ -220,11 +221,11 @@ def train():
     
     train_loader = DataLoader(
         train_dataset, batch_size=BATCH_SIZE, shuffle=True,
-        num_workers=NUM_WORKERS, pin_memory=True, prefetch_factor=2
+        num_workers=NUM_WORKERS, pin_memory=True, prefetch_factor=2, persistent_workers=True
     )
     val_loader = DataLoader(
         val_dataset, batch_size=BATCH_SIZE, shuffle=False,
-        num_workers=NUM_WORKERS, pin_memory=True, prefetch_factor=2
+        num_workers=NUM_WORKERS, pin_memory=True, prefetch_factor=2, persistent_workers=True
     )
     
     # Modelo e otimizador
@@ -342,4 +343,9 @@ def train():
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     train()
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    elapsed_hms = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+    print(f"Tempo total de execução: {elapsed_hms}")
