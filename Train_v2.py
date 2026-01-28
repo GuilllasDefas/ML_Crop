@@ -90,10 +90,10 @@ class MarginAwareCropModel(nn.Module):
         
         # Regressor com inicialização focada em margens
         self.regressor = nn.Sequential(
-            nn.Dropout(0.3),
+            nn.Dropout(0.4),
             nn.Linear(1280, 512),
             nn.LeakyReLU(0.1),
-            nn.Dropout(0.2),
+            nn.Dropout(0.3),
             nn.Linear(512, 128),
             nn.LeakyReLU(0.1),
             nn.Linear(128, 4)  # (x1, y1, x2, y2) normalizados
@@ -176,7 +176,7 @@ def combined_loss(pred, target, alpha=0.5):
 # ============ TREINAMENTO INTELIGENTE ============
 def train():
     # Configurações
-    IMG_SIZE = 256
+    IMG_SIZE = 300
     BATCH_SIZE = 24  # Ajustado para RTX 3060 Ti (8GB VRAM)
     NUM_WORKERS = max(6, os.cpu_count() // 2)
     EPOCHS = 100
@@ -208,7 +208,7 @@ def train():
     
     # Divisão treino/validação
     train_orig, val_orig, train_crop, val_crop = train_test_split(
-        orig_paths, crop_paths, test_size=0.15, random_state=42
+        orig_paths, crop_paths, test_size=0.1, random_state=42
     )
     
     # Criar datasets (pré-carregamento completo)

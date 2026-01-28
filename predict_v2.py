@@ -22,10 +22,10 @@ class MarginAwareCropModel(nn.Module):
         
         self.features = nn.Sequential(*list(backbone.children())[:-1])
         self.regressor = nn.Sequential(
-            nn.Dropout(0.3),
+            nn.Dropout(0.4),
             nn.Linear(1280, 512),
             nn.LeakyReLU(0.1),
-            nn.Dropout(0.2),
+            nn.Dropout(0.3),
             nn.Linear(512, 128),
             nn.LeakyReLU(0.1),
             nn.Linear(128, 4)
