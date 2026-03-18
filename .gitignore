@@ -62,3 +62,6 @@ htmlcov/
 *.tar.xz
 *.tar.zst
 ```
+
+.github
+logs/

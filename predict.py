@@ -1,4 +1,8 @@
+import datetime
+import logging
 import os
+import time
+
 import cv2
 import numpy as np
 import torch
@@ -8,8 +12,36 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 import concurrent.futures
 
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+def _setup_logging() -> logging.Logger:
+    os.makedirs("logs", exist_ok=True)
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    log_filename = os.path.join("logs", f"{script_name}_{timestamp}.log")
+    fmt = logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger("predict")
+    if logger.handlers:
+        return logger
+    logger.setLevel(logging.DEBUG)
+    sh = logging.StreamHandler()
+    sh.setLevel(logging.INFO)
+    sh.setFormatter(fmt)
+    fh = logging.FileHandler(log_filename, encoding="utf-8")
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(fmt)
+    logger.addHandler(sh)
+    logger.addHandler(fh)
+    logging.captureWarnings(True)
+    return logger
+
+
+log: logging.Logger = logging.getLogger("predict")
+
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f"Predição em: {DEVICE}")
 
 
 # ============ MODELO (IDÊNTICO AO TREINAMENTO) ============
@@ -61,6 +93,7 @@ class MarginAwareCropModel(nn.Module):
 def predict_crop(model, image_path, img_size=360):  # corrigir default
     img = cv2.imread(image_path)
     if img is None:
+        log.error(f"Falha ao carregar imagem: {image_path}")
         raise ValueError(f"Não foi possível carregar {image_path}")
 
     orig_h, orig_w = img.shape[:2]
@@ -88,16 +121,19 @@ def predict_crop(model, image_path, img_size=360):  # corrigir default
     y2 = int(np.clip(np.round(pred[3] * orig_h), y1 + 1, orig_h))
 
     if x2 <= x1 or y2 <= y1:
+        log.error(f"Predição inválida para {image_path}: x1={x1} y1={y1} x2={x2} y2={y2}")
         raise ValueError("Predição inválida: coordenadas incorretas")
 
+    log.debug(f"Crop {image_path}: x1={x1} y1={y1} x2={x2} y2={y2} (orig {orig_w}x{orig_h})")
     cropped = img[y1:y2, x1:x2]
     return cropped, (x1, y1, x2 - x1, y2 - y1)
 
 
 def _load_model() -> tuple[MarginAwareCropModel, int, float, float]:
-    print("Carregando modelo...")
+    log.info("Carregando modelo...")
     checkpoint_path = "models/best_model.pth"
     if not os.path.exists(checkpoint_path):
+        log.error(f"Modelo não encontrado em: {checkpoint_path}")
         raise FileNotFoundError(f"Modelo não encontrado em: {checkpoint_path}")
 
     checkpoint = torch.load(checkpoint_path, map_location=DEVICE)
@@ -107,7 +143,7 @@ def _load_model() -> tuple[MarginAwareCropModel, int, float, float]:
     train_iou = checkpoint.get("iou", 0.0)
     train_margin_err = checkpoint.get("margin_error", 0.0)
 
-    print(f"Modelo carregado! (IoU: {train_iou:.4f} | Erro Margem: {train_margin_err:.6f})")
+    log.info(f"Modelo carregado (IoU: {train_iou:.4f} | Erro Margem: {train_margin_err:.6f})")
     return model, img_size, train_iou, train_margin_err
 
 
@@ -149,6 +185,7 @@ def _process(model: MarginAwareCropModel, img_size: int, path: str, is_folder: b
             errors = []
             max_workers = min(8, (os.cpu_count() or 4))
 
+            log.info(f"Processando {total} imagens com {max_workers} workers")
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
                 futures = {executor.submit(predict_crop, model, img, img_size): img for img in images}
                 for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
@@ -161,16 +198,18 @@ def _process(model: MarginAwareCropModel, img_size: int, path: str, is_folder: b
                         out_path = os.path.join(output_dir, f"{base}_editado.jpg")
                         cv2.imwrite(out_path, cropped, [int(cv2.IMWRITE_JPEG_QUALITY), 98])
                         success += 1
-                        print(f"[{i}/{total}] {base_name} -> margens: x={coords[0]} y={coords[1]} w={coords[2]} h={coords[3]}")
+                        log.info(f"[{i}/{total}] {base_name} -> x={coords[0]} y={coords[1]} w={coords[2]} h={coords[3]}")
                     except Exception as e:
                         err = f"{base_name}: {str(e)}"
                         errors.append(err)
-                        print(f"[{i}/{total}] {err}")
+                        log.error(f"[{i}/{total}] {err}")
+
+            log.info(f"Processamento concluido: {success}/{total} sucesso, {len(errors)} erros. Saida: {output_dir}")
 
             msg = (
                 f"Processamento concluído!\n\n"
-                f"✓ Sucesso: {success}/{total}\n"
-                f"✗ Erros: {len(errors)}\n\n"
+                f"Sucesso: {success}/{total}\n"
+                f"Erros: {len(errors)}\n\n"
                 f"Saída: {output_dir}"
             )
             if errors:
@@ -195,6 +234,7 @@ def _process(model: MarginAwareCropModel, img_size: int, path: str, is_folder: b
             )
 
     except Exception as e:
+        log.error(f"Erro durante processamento: {e}", exc_info=True)
         messagebox.showerror("Erro", f"Erro durante processamento:\n{str(e)}")
 
 
@@ -205,11 +245,12 @@ def main():
     try:
         model, img_size, train_iou, train_margin_err = _load_model()
     except Exception as e:
+        log.error(f"Falha ao carregar modelo: {e}", exc_info=True)
         messagebox.showerror("Erro Fatal", f"Não foi possível carregar o modelo:\n{str(e)}")
         root.destroy()
         return
 
-    print(f"Modelo treinado: IoU={train_iou:.4f} | Erro Margem={train_margin_err:.6f}")
+    log.info(f"Device: {DEVICE}")
 
     is_folder = _choose_mode(root)
     path = _choose_path(root, is_folder)
@@ -222,4 +263,5 @@ def main():
 
 
 if __name__ == "__main__":
+    _setup_logging()
     main()

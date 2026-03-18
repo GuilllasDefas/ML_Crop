@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 import datetime
@@ -11,8 +12,35 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import models, transforms
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-import warnings
-warnings.filterwarnings('ignore')
+
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+def _setup_logging() -> logging.Logger:
+    os.makedirs("logs", exist_ok=True)
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    log_filename = os.path.join("logs", f"{script_name}_{timestamp}.log")
+    fmt = logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger("train")
+    if logger.handlers:
+        return logger
+    logger.setLevel(logging.DEBUG)
+    sh = logging.StreamHandler()
+    sh.setLevel(logging.INFO)
+    sh.setFormatter(fmt)
+    fh = logging.FileHandler(log_filename, encoding="utf-8")
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(fmt)
+    logger.addHandler(sh)
+    logger.addHandler(fh)
+    logging.captureWarnings(True)
+    return logger
+
+
+log: logging.Logger = logging.getLogger("train")
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -22,7 +50,7 @@ class CropDataset(Dataset):
         self.img_size = img_size
         self.pairs = []
         
-        print("Preparando dataset...")
+        log.info("Preparando dataset...")
         for orig_path, crop_path, bbox_norm in zip(original_paths, cropped_paths, bbox_data):
             try:
                 # Armazenar apenas os caminhos e bounding boxes já calculados
@@ -32,10 +60,10 @@ class CropDataset(Dataset):
                     'bbox': bbox_norm.astype(np.float32),
                 })
             except Exception as e:
-                print(f"Erro ao processar {orig_path}: {e}")
+                log.error(f"Erro ao processar {orig_path}: {e}")
                 continue
         
-        print(f"Dataset preparado: {len(self.pairs)} pares válidos")
+        log.info(f"Dataset preparado: {len(self.pairs)} pares válidos")
     
     def __len__(self):
         return len(self.pairs)
@@ -91,7 +119,7 @@ def _compute_bbox_for_pair(orig_path, crop_path):
         ], dtype=np.float32)
 
     except Exception as e:
-        print(f"Erro ao calcular bbox para {orig_path}: {e}")
+        log.error(f"Erro ao calcular bbox para {orig_path}: {e}")
         return np.array([0.05, 0.05, 0.95, 0.95], dtype=np.float32)
 
 
@@ -103,12 +131,12 @@ def compute_bounding_boxes(orig_paths, crop_paths, cache_path=None, max_workers=
             with open(cache_path, "rb") as f:
                 cache = pickle.load(f)
             if cache.get("orig_paths") == orig_paths and cache.get("crop_paths") == crop_paths:
-                print("Carregando bboxes do cache")
+                log.info("Carregando bboxes do cache")
                 return cache.get("bboxes", [])
         except Exception as e:
-            print(f"Aviso: falha ao ler cache de bbox ({cache_path}): {e}")
+            log.warning(f"Falha ao ler cache de bbox ({cache_path}): {e}")
 
-    print("Calculando bounding boxes (isso será feito apenas uma vez)...")
+    log.info("Calculando bounding boxes (isso será feito apenas uma vez)...")
     if max_workers is None:
         max_workers = os.cpu_count() or 4
 
@@ -127,9 +155,9 @@ def compute_bounding_boxes(orig_paths, crop_paths, cache_path=None, max_workers=
                     "crop_paths": crop_paths,
                     "bboxes": bbox_list,
                 }, f)
-            print(f"Cache de bboxes salvo em: {cache_path}")
+            log.info(f"Cache de bboxes salvo em: {cache_path}")
         except Exception as e:
-            print(f"Aviso: falha ao salvar cache de bbox ({cache_path}): {e}")
+            log.warning(f"Falha ao salvar cache de bbox ({cache_path}): {e}")
 
     return bbox_list
 
@@ -246,8 +274,8 @@ def train():
     IMG_SIZE = 360  # Aumentar para melhor resolução (se a GPU permitir)
     BATCH_SIZE = 16  # Pode ser aumentado dependendo da GPU
     NUM_WORKERS = os.cpu_count() if os.cpu_count() is not None else 4
-    EPOCHS = 150
-    PATIENCE = 25  # Mais tolerante para convergência fina das margens
+    EPOCHS = 100
+    PATIENCE = 15  # Mais tolerante para convergência fina das margens
     
     # Carregar paths
     orig_dir = "dataset/origin"
@@ -269,7 +297,7 @@ def train():
     orig_paths = [orig_dict[name] for name in common_names]
     crop_paths = [crop_dict[name] for name in common_names]
     
-    print(f"Encontrados {len(common_names)} pares de imagens")
+    log.info(f"Encontrados {len(common_names)} pares de imagens")
     if len(common_names) < 10:
         raise ValueError("Dataset muito pequeno! Mínimo recomendado: 50 pares")
     
@@ -395,10 +423,10 @@ def train():
         scheduler.step(avg_val_loss)
         curr_lr = optimizer.param_groups[0]['lr']
         if curr_lr < prev_lr:
-            print(f"LR reduzido: {prev_lr:.2e} -> {curr_lr:.2e}")
+            log.warning(f"LR reduzido: {prev_lr:.2e} -> {curr_lr:.2e}")
         
-        print(f"Epoch {epoch+1}: Train Loss={avg_train_loss:.6f} | Val Loss={avg_val_loss:.6f} | "
-              f"Val IoU={avg_iou:.6f} | Margin Err={avg_margin_err:.6f}")
+        log.info(f"Epoch {epoch+1}: Train Loss={avg_train_loss:.6f} | Val Loss={avg_val_loss:.6f} | "
+                f"Val IoU={avg_iou:.6f} | Margin Err={avg_margin_err:.6f}")
         
         # Early stopping baseado na loss de validação
         if avg_val_loss < best_loss:
@@ -414,14 +442,14 @@ def train():
                 'img_size': IMG_SIZE,
                 'epoch': epoch + 1
             }, "models/best_model.pth")
-            print(f"Novo melhor modelo salvo (Val Loss: {best_loss:.6f} | IoU: {avg_iou:.6f} | Margin Err: {avg_margin_err:.6f})")
+            log.info(f"Novo melhor modelo salvo (Val Loss: {best_loss:.6f} | IoU: {avg_iou:.6f} | Margin Err: {avg_margin_err:.6f})")
         else:
             patience_counter += 1
             if patience_counter >= PATIENCE:
-                print(f"\nEarly stopping ativado após {epoch+1} épocas")
+                log.info(f"Early stopping ativado após {epoch+1} épocas")
                 break
     
-    print(f"\nTreinamento concluído! Melhor Val Loss: {best_loss:.6f} | IoU: {avg_iou:.6f} | Erro Margem: {avg_margin_err:.6f}")
+    log.info(f"Treinamento concluído! Melhor Val Loss: {best_loss:.6f} | IoU: {avg_iou:.6f} | Erro Margem: {avg_margin_err:.6f}")
 
     # Registrar métricas finais em arquivo de log
     try:
@@ -433,15 +461,16 @@ def train():
                 f"{now} - Epoch {epoch+1}: Train Loss={avg_train_loss:.6f} | Val Loss={avg_val_loss:.6f} | "
                 f"Val IoU={avg_iou:.6f} | Margin Err={avg_margin_err:.6f}\n"
             )
-        print(f"Métricas salvas em: {log_path}")
+        log.info(f"Métricas salvas em: {log_path}")
     except Exception as e:
-        print(f"Falha ao salvar métricas: {e}")
+        log.error(f"Falha ao salvar métricas: {e}")
 
 
 if __name__ == "__main__":
+    _setup_logging()
     start_time = time.time()
     train()
     end_time = time.time()
     elapsed_time = end_time - start_time
     elapsed_hms = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-    print(f"Tempo total de execução: {elapsed_hms}")
+    log.info(f"Tempo total de execução: {elapsed_hms}")

@@ -1,454 +1,749 @@
-"""
-analise_dataset.py
-Ferramenta de análise do dataset: distribuição por faixas de área + visualização de exemplos.
-Dependências: pickle, numpy, opencv-python, matplotlib, Pillow, tkinter (stdlib)
-"""
-
+import argparse
+import datetime
+import logging
+import math
 import os
 import pickle
-import tkinter as tk
-from tkinter import ttk, messagebox
-import numpy as np
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Tuple
+
 import cv2
 import matplotlib
-matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from PIL import Image, ImageTk
+import numpy as np
 
-CACHE_PATH        = "models/bbox_cache.pkl"
-CROP_DIR          = "dataset/cropped"
-SAMPLES_PER_RANGE = 5
+matplotlib.use("Agg")
 
-# ── Paleta ───────────────────────────────────────────────────────────────────
-BG      = "#0f1117"
-PANEL   = "#1a1d27"
-ACCENT  = "#4f8ef7"
-DANGER  = "#f74f4f"
-SUCCESS = "#4ff788"
-TEXT    = "#e8eaf0"
-SUBTEXT = "#7a7f99"
-BORDER  = "#2a2d3e"
-
-RANGE_COLORS = ["#4f8ef7","#a78bfa","#34d399","#f59e0b",
-                "#f87171","#38bdf8","#fb923c","#a3e635"]
+IMAGE_EXTENSIONS: Tuple[str, ...] = (".jpg", ".jpeg", ".png", ".bmp", ".webp")
+DEFAULT_BINS: Tuple[float, ...] = (0.10, 0.20, 0.35, 0.50, 0.70, 1.00)
 
 
-# ── Dados ────────────────────────────────────────────────────────────────────
-def load_cache():
-    with open(CACHE_PATH, "rb") as f:
-        cache = pickle.load(f)
-    bboxes  = np.array(cache["bboxes"])
-    areas   = (bboxes[:, 2] - bboxes[:, 0]) * (bboxes[:, 3] - bboxes[:, 1])
-    return cache["orig_paths"], cache["crop_paths"], bboxes, areas
+def setup_logging() -> logging.Logger:
+    os.makedirs("logs", exist_ok=True)
+    script_name = Path(__file__).stem
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    log_filename = Path("logs") / f"{script_name}_{timestamp}.log"
+
+    fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+
+    logger = logging.getLogger("analise_dataset")
+    if logger.handlers:
+        return logger
+
+    logger.setLevel(logging.DEBUG)
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(fmt)
+
+    file_handler = logging.FileHandler(log_filename, encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(fmt)
+
+    logger.addHandler(stream_handler)
+    logger.addHandler(file_handler)
+    logging.captureWarnings(True)
+    return logger
 
 
-def find_crop_path(orig_path):
-    base = os.path.splitext(os.path.basename(orig_path))[0]
-    for ext in (".jpg", ".jpeg", ".png", ".bmp"):
-        for suffix in ("_editado", ""):
-            p = os.path.join(CROP_DIR, base + suffix + ext)
-            if os.path.exists(p):
-                return p
-    return None
+log = logging.getLogger("analise_dataset")
 
 
-def compute_ranges(areas, breakpoints):
-    edges = [0.0] + sorted(breakpoints) + [1.0]
-    total = len(areas)
-    result = []
+@dataclass
+class PairRecord:
+    key: str
+    orig_path: Path
+    crop_path: Path
+    width: int
+    height: int
+    bbox: np.ndarray
+
+    @property
+    def area(self) -> float:
+        return float((self.bbox[2] - self.bbox[0]) * (self.bbox[3] - self.bbox[1]))
+
+    @property
+    def aspect_ratio(self) -> float:
+        return float(self.width / max(self.height, 1))
+
+    @property
+    def margins(self) -> np.ndarray:
+        return np.array([
+            self.bbox[0],
+            self.bbox[1],
+            1.0 - self.bbox[2],
+            1.0 - self.bbox[3],
+        ], dtype=np.float32)
+
+
+@dataclass
+class BinStatus:
+    label: str
+    count: int
+    percent: float
+    ideal_count: float
+    status: str
+    indices: List[int]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Analisa o dataset de recorte e gera estatisticas + graficos para identificar "
+            "faixas em excesso e faixas faltando."
+        )
+    )
+    parser.add_argument("--origin-dir", default="dataset/origin", help="Pasta de imagens originais")
+    parser.add_argument("--crop-dir", default="dataset/cropped", help="Pasta de imagens recortadas")
+    parser.add_argument("--output-dir", default="logs", help="Pasta base para salvar analise")
+    parser.add_argument("--cache-path", default="models/bbox_cache.pkl", help="Cache de bbox (opcional)")
+    parser.add_argument(
+        "--bins",
+        nargs="+",
+        type=float,
+        default=list(DEFAULT_BINS),
+        help="Limites superiores de area (normalizada) para classificacao. Ex: --bins 0.1 0.2 0.35 0.5 0.7 1.0",
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=0.25,
+        help="Tolerancia de desbalanceamento para classificar excesso/falta (padrao=0.25 = 25%%)",
+    )
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=max(1, (os.cpu_count() or 4) - 1),
+        help="Workers para calcular bbox quando nao houver cache suficiente",
+    )
+    parser.add_argument(
+        "--samples-per-bin",
+        type=int,
+        default=8,
+        help="Quantidade maxima de exemplos visuais salvos por faixa",
+    )
+    return parser.parse_args()
+
+
+def list_images(folder: Path) -> List[Path]:
+    if not folder.exists():
+        return []
+    files = [p for p in folder.iterdir() if p.is_file() and p.suffix.lower() in IMAGE_EXTENSIONS]
+    return sorted(files)
+
+
+def base_key(path: Path) -> str:
+    return path.stem.replace("_editado", "")
+
+
+def map_by_key(files: Sequence[Path]) -> Dict[str, Path]:
+    mapping: Dict[str, Path] = {}
+    for path in files:
+        mapping[base_key(path)] = path
+    return mapping
+
+
+def load_cache_bboxes(cache_path: Path) -> Dict[Tuple[str, str], np.ndarray]:
+    if not cache_path.exists():
+        return {}
+
+    try:
+        with cache_path.open("rb") as f:
+            cache = pickle.load(f)
+
+        orig_paths = cache.get("orig_paths", [])
+        crop_paths = cache.get("crop_paths", [])
+        bboxes = cache.get("bboxes", [])
+
+        if not (len(orig_paths) == len(crop_paths) == len(bboxes)):
+            log.warning("Cache de bbox invalido (tamanho inconsistente).")
+            return {}
+
+        cache_map: Dict[Tuple[str, str], np.ndarray] = {}
+        for orig, crop, bbox in zip(orig_paths, crop_paths, bboxes):
+            key = (str(Path(orig)), str(Path(crop)))
+            cache_map[key] = np.asarray(bbox, dtype=np.float32)
+
+        log.info("Cache de bbox carregado: %d entradas", len(cache_map))
+        return cache_map
+    except Exception as exc:
+        log.warning("Falha ao ler cache de bbox (%s): %s", cache_path, exc)
+        return {}
+
+
+def compute_bbox_for_pair(orig_path: Path, crop_path: Path) -> np.ndarray:
+    try:
+        orig = cv2.imread(str(orig_path))
+        crop = cv2.imread(str(crop_path))
+        if orig is None or crop is None:
+            return np.array([0.05, 0.05, 0.95, 0.95], dtype=np.float32)
+
+        orig_h, orig_w = orig.shape[:2]
+        gray_orig = cv2.cvtColor(orig, cv2.COLOR_BGR2GRAY)
+        gray_crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+
+        result = cv2.matchTemplate(gray_orig, gray_crop, cv2.TM_CCOEFF_NORMED)
+        _, _, _, max_loc = cv2.minMaxLoc(result)
+
+        x1, y1 = max_loc
+        x2, y2 = x1 + crop.shape[1], y1 + crop.shape[0]
+
+        bbox = np.array([x1 / orig_w, y1 / orig_h, x2 / orig_w, y2 / orig_h], dtype=np.float32)
+        return np.clip(bbox, 0.0, 1.0)
+    except Exception as exc:
+        log.error("Erro ao calcular bbox para %s: %s", orig_path, exc)
+        return np.array([0.05, 0.05, 0.95, 0.95], dtype=np.float32)
+
+
+def resolve_pairs(
+    origin_files: Sequence[Path],
+    crop_files: Sequence[Path],
+    cache_map: Dict[Tuple[str, str], np.ndarray],
+    max_workers: int,
+) -> Tuple[List[PairRecord], List[Path], List[Path]]:
+    origin_map = map_by_key(origin_files)
+    crop_map = map_by_key(crop_files)
+
+    common_keys = sorted(set(origin_map) & set(crop_map))
+    missing_crop_keys = sorted(set(origin_map) - set(crop_map))
+    orphan_crop_keys = sorted(set(crop_map) - set(origin_map))
+
+    missing_crop = [origin_map[k] for k in missing_crop_keys]
+    orphan_crop = [crop_map[k] for k in orphan_crop_keys]
+
+    planned_pairs: List[Tuple[str, Path, Path]] = []
+    for key in common_keys:
+        planned_pairs.append((key, origin_map[key], crop_map[key]))
+
+    records: List[Optional[PairRecord]] = [None] * len(planned_pairs)
+    to_compute: List[Tuple[int, str, Path, Path]] = []
+
+    for idx, (key, orig, crop) in enumerate(planned_pairs):
+        cache_key = (str(orig), str(crop))
+        bbox = cache_map.get(cache_key)
+        img = cv2.imread(str(orig))
+        if img is None:
+            log.warning("Nao foi possivel ler imagem original: %s", orig)
+            continue
+        h, w = img.shape[:2]
+
+        if bbox is not None:
+            records[idx] = PairRecord(key=key, orig_path=orig, crop_path=crop, width=w, height=h, bbox=bbox)
+        else:
+            to_compute.append((idx, key, orig, crop))
+
+    if to_compute:
+        log.info("Calculando %d bboxes fora do cache...", len(to_compute))
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(compute_bbox_for_pair, orig, crop): (idx, key, orig, crop)
+                for idx, key, orig, crop in to_compute
+            }
+            for future in futures:
+                idx, key, orig, crop = futures[future]
+                bbox = future.result()
+                img = cv2.imread(str(orig))
+                if img is None:
+                    continue
+                h, w = img.shape[:2]
+                records[idx] = PairRecord(key=key, orig_path=orig, crop_path=crop, width=w, height=h, bbox=bbox)
+
+    valid_records = [r for r in records if r is not None]
+    return valid_records, missing_crop, orphan_crop
+
+
+def summarize_numeric(values: np.ndarray) -> Dict[str, float]:
+    return {
+        "min": float(np.min(values)),
+        "p25": float(np.percentile(values, 25)),
+        "median": float(np.median(values)),
+        "mean": float(np.mean(values)),
+        "p75": float(np.percentile(values, 75)),
+        "max": float(np.max(values)),
+        "std": float(np.std(values)),
+    }
+
+
+def classify_bins(values: np.ndarray, bins: Sequence[float], threshold: float) -> List[BinStatus]:
+    bins_sorted = sorted(float(v) for v in bins)
+    if not bins_sorted or bins_sorted[-1] < 1.0:
+        bins_sorted.append(1.0)
+
+    edges = [0.0] + bins_sorted
+    total = len(values)
+    ideal_count = total / max(len(edges) - 1, 1)
+
+    result: List[BinStatus] = []
     for i in range(len(edges) - 1):
-        lo, hi = edges[i], edges[i + 1]
-        mask = (areas >= lo) & (areas <= hi if i == len(edges) - 2 else areas < hi)
+        lo = edges[i]
+        hi = edges[i + 1]
+        if i == len(edges) - 2:
+            mask = (values >= lo) & (values <= hi)
+        else:
+            mask = (values >= lo) & (values < hi)
+        indices = np.where(mask)[0].tolist()
+
         count = int(mask.sum())
-        result.append({
-            "lo": lo, "hi": hi,
-            "label": f"{lo*100:.0f}–{hi*100:.0f}%",
-            "count": count,
-            "pct": count / total * 100 if total else 0,
-            "mask": mask,
-            "color": RANGE_COLORS[i % len(RANGE_COLORS)],
-        })
+        pct = (count / total * 100.0) if total else 0.0
+
+        upper = ideal_count * (1.0 + threshold)
+        lower = ideal_count * (1.0 - threshold)
+        if count > upper:
+            status = "EXCESSO"
+        elif count < lower:
+            status = "FALTANDO"
+        else:
+            status = "OK"
+
+        result.append(
+            BinStatus(
+                label=f"{lo:.2f}-{hi:.2f}",
+                count=count,
+                percent=pct,
+                ideal_count=ideal_count,
+                status=status,
+                indices=indices,
+            )
+        )
+
     return result
 
 
-# ── App ───────────────────────────────────────────────────────────────────────
-class App(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title("Análise de Dataset — Faixas de Área")
-        self.configure(bg=BG)
-        self.minsize(900, 600)
-        self.geometry("1300x820")
+def write_text_report(
+    output_path: Path,
+    total_origin: int,
+    total_crop: int,
+    records: Sequence[PairRecord],
+    missing_crop: Sequence[Path],
+    orphan_crop: Sequence[Path],
+    area_stats: Dict[str, float],
+    aspect_stats: Dict[str, float],
+    margin_stats: Dict[str, Dict[str, float]],
+    area_balance: Sequence[BinStatus],
+    ext_counter: Counter,
+) -> None:
+    with output_path.open("w", encoding="utf-8") as f:
+        f.write("=== ANALISE DO DATASET ===\n\n")
+        f.write(f"Total de originais: {total_origin}\n")
+        f.write(f"Total de crops: {total_crop}\n")
+        f.write(f"Pares validos: {len(records)}\n")
+        f.write(f"Originais sem crop correspondente: {len(missing_crop)}\n")
+        f.write(f"Crops orfaos (sem original): {len(orphan_crop)}\n\n")
 
-        self.orig_paths, self.crop_paths, self.bboxes, self.areas = load_cache()
-        self.n = len(self.areas)
-        self._ranges_data = []
-        self._thumb_refs  = []   # evitar GC das imagens
+        if missing_crop:
+            f.write("Exemplos de originais sem crop:\n")
+            for path in list(missing_crop)[:10]:
+                f.write(f"- {path}\n")
+            f.write("\n")
 
-        self._build_ui()
-        self._refresh()
+        if orphan_crop:
+            f.write("Exemplos de crops orfaos:\n")
+            for path in list(orphan_crop)[:10]:
+                f.write(f"- {path}\n")
+            f.write("\n")
 
-    # ── Layout ───────────────────────────────────────────────────────────────
-    def _build_ui(self):
-        # Toda a janela em grid 3 linhas: header | toolbar | conteúdo
-        self.rowconfigure(0, weight=0)
-        self.rowconfigure(1, weight=0)
-        self.rowconfigure(2, weight=1)
-        self.columnconfigure(0, weight=1)
+        f.write("Distribuicao por extensao (originais):\n")
+        for ext, count in ext_counter.most_common():
+            f.write(f"- {ext}: {count}\n")
+        f.write("\n")
 
-        # ── Header ──────────────────────────────────────────
-        hdr = tk.Frame(self, bg=BG)
-        hdr.grid(row=0, column=0, sticky="ew", padx=20, pady=(14, 0))
+        f.write("Estatisticas de area do bbox:\n")
+        for key in ["min", "p25", "median", "mean", "p75", "max", "std"]:
+            f.write(f"- {key}: {area_stats[key]:.6f}\n")
+        f.write("\n")
 
-        tk.Label(hdr, text="ANÁLISE DE DATASET",
-                 font=("Courier New", 17, "bold"), bg=BG, fg=ACCENT).pack(side="left")
-        tk.Label(hdr, text=f"  {self.n} amostras carregadas",
-                 font=("Courier New", 11), bg=BG, fg=SUBTEXT).pack(side="left", padx=8)
+        f.write("Estatisticas de aspect ratio (largura/altura):\n")
+        for key in ["min", "p25", "median", "mean", "p75", "max", "std"]:
+            f.write(f"- {key}: {aspect_stats[key]:.6f}\n")
+        f.write("\n")
 
-        # ── Toolbar ─────────────────────────────────────────
-        toolbar = tk.Frame(self, bg=PANEL)
-        toolbar.grid(row=1, column=0, sticky="ew", padx=20, pady=10)
-        toolbar.columnconfigure(1, weight=1)   # bp_frame se expande
+        f.write("Estatisticas de margens normalizadas:\n")
+        for side in ["left", "top", "right", "bottom"]:
+            f.write(f"- {side}:\n")
+            for key in ["min", "p25", "median", "mean", "p75", "max", "std"]:
+                f.write(f"    - {key}: {margin_stats[side][key]:.6f}\n")
+        f.write("\n")
 
-        tk.Label(toolbar, text="Pontos de corte (% de área):",
-                 font=("Courier New", 10, "bold"), bg=PANEL, fg=TEXT
-                 ).grid(row=0, column=0, padx=12, pady=8, sticky="w")
-
-        self._bp_frame = tk.Frame(toolbar, bg=PANEL)
-        self._bp_frame.grid(row=0, column=1, sticky="w", padx=4)
-        self._bp_entries: list[tk.Entry] = []
-        for v in ["15", "28", "40"]:
-            self._add_entry(v)
-
-        btn_frame = tk.Frame(toolbar, bg=PANEL)
-        btn_frame.grid(row=0, column=2, padx=12, pady=8)
-
-        def btn(parent, text, color, cmd, fg=BG):
-            b = tk.Button(parent, text=text, font=("Courier New", 10),
-                          bg=color, fg=fg, relief="flat", cursor="hand2",
-                          activebackground=color, padx=10, pady=4, command=cmd)
-            b.pack(side="left", padx=4)
-            return b
-
-        btn(btn_frame, "＋ Faixa",  ACCENT,   self._add_entry)
-        btn(btn_frame, "－ Faixa",  BORDER,   self._remove_entry, fg=TEXT)
-        btn(btn_frame, "▶  Aplicar", SUCCESS,  self._refresh)
-
-        # ── Conteúdo principal: left (60%) | right (40%) ────
-        content = tk.Frame(self, bg=BG)
-        content.grid(row=2, column=0, sticky="nsew", padx=20, pady=(0, 14))
-        content.rowconfigure(0, weight=1)
-        content.columnconfigure(0, weight=3)   # painel esquerdo
-        content.columnconfigure(1, weight=2)   # painel direito
-
-        # ── Painel esquerdo ──────────────────────────────────
-        left = tk.Frame(content, bg=BG)
-        left.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
-        left.rowconfigure(0, weight=2)   # gráfico
-        left.rowconfigure(1, weight=1)   # tabela
-        left.columnconfigure(0, weight=1)
-
-        # Gráfico matplotlib – tamanho inicial; redimensiona com a janela
-        self._fig, (self._ax_bar, self._ax_pie) = plt.subplots(
-            1, 2, facecolor=BG)
-        self._fig.subplots_adjust(left=0.07, right=0.97, top=0.87,
-                                  bottom=0.16, wspace=0.38)
-        self._mpl_canvas = FigureCanvasTkAgg(self._fig, master=left)
-        mpl_widget = self._mpl_canvas.get_tk_widget()
-        mpl_widget.configure(bg=BG, highlightthickness=0)
-        mpl_widget.grid(row=0, column=0, sticky="nsew")
-        # Redimensionar figura quando o widget mudar de tamanho
-        mpl_widget.bind("<Configure>", self._on_chart_resize)
-
-        # Tabela
-        table_frame = tk.Frame(left, bg=BG)
-        table_frame.grid(row=1, column=0, sticky="nsew", pady=(8, 0))
-        table_frame.rowconfigure(0, weight=1)
-        table_frame.columnconfigure(0, weight=1)
-
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("D.Treeview", background=PANEL, foreground=TEXT,
-                        fieldbackground=PANEL, rowheight=28,
-                        font=("Courier New", 10))
-        style.configure("D.Treeview.Heading", background=BORDER,
-                        foreground=ACCENT, font=("Courier New", 10, "bold"),
-                        relief="flat")
-        style.map("D.Treeview",
-                  background=[("selected", ACCENT)],
-                  foreground=[("selected", BG)])
-
-        cols = ("Faixa", "Qtd", "%", "Status")
-        self._tree = ttk.Treeview(table_frame, columns=cols,
-                                  show="headings", style="D.Treeview")
-        for col, w, anchor in zip(cols, [140, 80, 80, 130],
-                                  ["center","center","center","center"]):
-            self._tree.heading(col, text=col)
-            self._tree.column(col, width=w, anchor=anchor, stretch=True)
-
-        vsb = ttk.Scrollbar(table_frame, orient="vertical",
-                            command=self._tree.yview)
-        self._tree.configure(yscrollcommand=vsb.set)
-        self._tree.grid(row=0, column=0, sticky="nsew")
-        vsb.grid(row=0, column=1, sticky="ns")
-        self._tree.bind("<<TreeviewSelect>>", self._on_row_select)
-
-        # ── Painel direito (exemplos) ────────────────────────
-        right = tk.Frame(content, bg=PANEL)
-        right.grid(row=0, column=1, sticky="nsew")
-        right.rowconfigure(1, weight=1)
-        right.columnconfigure(0, weight=1)
-
-        tk.Label(right, text="EXEMPLOS DA FAIXA SELECIONADA",
-                 font=("Courier New", 10, "bold"), bg=PANEL, fg=ACCENT
-                 ).grid(row=0, column=0, pady=(10, 2))
-
-        scroll_host = tk.Frame(right, bg=PANEL)
-        scroll_host.grid(row=1, column=0, sticky="nsew", padx=6, pady=(4, 8))
-        scroll_host.rowconfigure(0, weight=1)
-        scroll_host.columnconfigure(0, weight=1)
-
-        self._ex_canvas = tk.Canvas(scroll_host, bg=PANEL,
-                                    highlightthickness=0)
-        vsb2 = ttk.Scrollbar(scroll_host, orient="vertical",
-                              command=self._ex_canvas.yview)
-        self._sample_frame = tk.Frame(self._ex_canvas, bg=PANEL)
-        self._win_id = self._ex_canvas.create_window(
-            (0, 0), window=self._sample_frame, anchor="nw")
-
-        self._sample_frame.bind(
-            "<Configure>",
-            lambda e: self._ex_canvas.configure(
-                scrollregion=self._ex_canvas.bbox("all")))
-        self._ex_canvas.bind(
-            "<Configure>",
-            lambda e: self._ex_canvas.itemconfig(
-                self._win_id, width=e.width))
-        self._ex_canvas.configure(yscrollcommand=vsb2.set)
-
-        self._ex_canvas.grid(row=0, column=0, sticky="nsew")
-        vsb2.grid(row=0, column=1, sticky="ns")
-
-        # Scroll somente quando o mouse está sobre o painel de exemplos
-        self._ex_canvas.bind(
-            "<Enter>",
-            lambda e: self._ex_canvas.bind_all(
-                "<MouseWheel>",
-                lambda ev: self._ex_canvas.yview_scroll(
-                    -1 * (ev.delta // 120), "units")))
-        self._ex_canvas.bind(
-            "<Leave>",
-            lambda e: self._ex_canvas.unbind_all("<MouseWheel>"))
-
-        # Placeholder
-        tk.Label(self._sample_frame,
-                 text="Clique em uma faixa na tabela",
-                 font=("Courier New", 9), bg=PANEL, fg=SUBTEXT
-                 ).pack(pady=20)
-
-    # ── Redimensionamento do gráfico ──────────────────────────────────────────
-    def _on_chart_resize(self, event):
-        if hasattr(self, "_resize_job"):
-            self.after_cancel(self._resize_job)
-        def _do_resize():
-            dpi = self._fig.dpi
-            w_in = max(event.width  / dpi, 2)
-            h_in = max(event.height / dpi, 1.5)
-            self._fig.set_size_inches(w_in, h_in, forward=False)
-            self._mpl_canvas.draw_idle()
-        self._resize_job = self.after(80, _do_resize)
-
-    # ── Entry helpers ─────────────────────────────────────────────────────────
-    def _add_entry(self, val=""):
-        e = tk.Entry(self._bp_frame, width=5, font=("Courier New", 11),
-                     bg=BORDER, fg=TEXT, insertbackground=TEXT,
-                     relief="flat", justify="center")
-        e.insert(0, str(val))
-        e.pack(side="left", padx=3, ipady=4)
-        self._bp_entries.append(e)
-
-    def _remove_entry(self):
-        if len(self._bp_entries) > 1:
-            self._bp_entries.pop().destroy()
-
-    # ── Refresh ───────────────────────────────────────────────────────────────
-    def _refresh(self):
-        bps = []
-        for e in self._bp_entries:
-            try:
-                v = float(e.get().strip()) / 100.0
-                if 0 < v < 1:
-                    bps.append(v)
-            except ValueError:
-                pass
-        self._ranges_data = compute_ranges(self.areas, sorted(set(bps)))
-        self._draw_charts()
-        self._fill_table()
-        # Limpar painel de exemplos e resetar scroll
-        self._thumb_refs.clear()
-        for w in self._sample_frame.winfo_children():
-            w.destroy()
-        tk.Label(self._sample_frame,
-                 text="Clique em uma faixa na tabela",
-                 font=("Courier New", 9), bg=PANEL, fg=SUBTEXT).pack(pady=20)
-        self._ex_canvas.yview_moveto(0)
-
-    # ── Gráficos ──────────────────────────────────────────────────────────────
-    def _draw_charts(self):
-        for ax in (self._ax_bar, self._ax_pie):
-            ax.clear()
-            ax.set_facecolor(BG)
-            for sp in ax.spines.values():
-                sp.set_edgecolor(BORDER)
-
-        rd     = self._ranges_data
-        labels = [r["label"] for r in rd]
-        counts = [r["count"] for r in rd]
-        colors = [r["color"] for r in rd]
-        pcts   = [r["pct"]   for r in rd]
-
-        bars = self._ax_bar.bar(labels, counts, color=colors,
-                                edgecolor=BG, linewidth=1)
-        for bar, pct in zip(bars, pcts):
-            h = bar.get_height()
-            self._ax_bar.text(bar.get_x() + bar.get_width() / 2,
-                              h + max(counts) * 0.02 if counts else 1,
-                              f"{pct:.1f}%", ha="center", va="bottom",
-                              color=TEXT, fontsize=8, fontfamily="monospace")
-        self._ax_bar.set_title("Quantidade por faixa", color=TEXT,
-                               fontsize=9, fontfamily="monospace", pad=6)
-        self._ax_bar.tick_params(colors=SUBTEXT, labelsize=7)
-        self._ax_bar.set_ylabel("amostras", color=SUBTEXT, fontsize=8)
-        self._ax_bar.set_ylim(0, (max(counts) * 1.18) if counts else 1)
-        plt.setp(self._ax_bar.get_xticklabels(),
-                 rotation=30, ha="right", fontfamily="monospace", fontsize=7)
-
-        self._ax_pie.pie(
-            counts if any(c > 0 for c in counts) else [1],
-            labels=labels, colors=colors,
-            autopct="%1.1f%%", pctdistance=0.75,
-            textprops={"color": TEXT, "fontsize": 7, "fontfamily": "monospace"},
-            wedgeprops=dict(width=0.55, edgecolor=BG, linewidth=1.5),
-            startangle=90)
-        self._ax_pie.set_title("Proporção", color=TEXT,
-                               fontsize=9, fontfamily="monospace", pad=6)
-
-        self._mpl_canvas.draw_idle()
-
-    # ── Tabela ────────────────────────────────────────────────────────────────
-    def _fill_table(self):
-        self._tree.delete(*self._tree.get_children())
-        max_pct = max((r["pct"] for r in self._ranges_data), default=0)
-        for i, r in enumerate(self._ranges_data):
-            if r["pct"] >= max_pct * 0.85:
-                status = "🔴 EXCESSO"
-            elif r["pct"] <= max_pct * 0.25:
-                status = "🟡 ESCASSO"
+        f.write("Balanceamento por faixa de area:\n")
+        for item in area_balance:
+            f.write(
+                f"- faixa {item.label}: {item.count} ({item.percent:.2f}%) | "
+                f"ideal={item.ideal_count:.2f} | status={item.status}\n"
+            )
+            if item.indices:
+                sample_idx = item.indices[: min(5, len(item.indices))]
+                f.write("  exemplos:\n")
+                for idx in sample_idx:
+                    rec = records[idx]
+                    f.write(
+                        f"    - key={rec.key} | area={rec.area:.4f} | orig={rec.orig_path} | crop={rec.crop_path}\n"
+                    )
             else:
-                status = "🟢 OK"
-            self._tree.insert("", "end", iid=str(i),
-                              values=(r["label"], r["count"],
-                                      f"{r['pct']:.1f}%", status))
-
-    # ── Seleção → exemplos ────────────────────────────────────────────────────
-    def _on_row_select(self, _event):
-        sel = self._tree.selection()
-        if sel:
-            self._show_samples(self._ranges_data[int(sel[0])])
-
-    def _show_samples(self, r):
-        self._thumb_refs.clear()
-        for w in self._sample_frame.winfo_children():
-            w.destroy()
-
-        indices = np.where(r["mask"])[0]
-        if len(indices) == 0:
-            tk.Label(self._sample_frame, text="Nenhuma amostra nesta faixa.",
-                     bg=PANEL, fg=SUBTEXT, font=("Courier New", 10)).pack(pady=20)
-            return
-
-        sample_idx = np.random.choice(
-            indices, size=min(SAMPLES_PER_RANGE, len(indices)), replace=False)
-
-        tk.Label(self._sample_frame,
-                 text=f"Faixa {r['label']}  —  {r['count']} imgs ({r['pct']:.1f}%)",
-                 font=("Courier New", 10, "bold"), bg=PANEL,
-                 fg=r["color"]).pack(pady=(6, 8))
-
-        for ii, si in enumerate(sample_idx):
-            orig_path = self.orig_paths[si]
-            bbox      = self.bboxes[si]
-            w_n  = bbox[2] - bbox[0]
-            h_n  = bbox[3] - bbox[1]
-            area = w_n * h_n
-
-            card = tk.Frame(self._sample_frame, bg=BORDER)
-            card.pack(fill="x", padx=6, pady=3)
-
-            # Info à esquerda
-            info = (f"#{ii+1}  área={area*100:.1f}%\n"
-                    f"w={w_n*100:.1f}%  h={h_n*100:.1f}%\n"
-                    f"{os.path.basename(orig_path)}")
-            tk.Label(card, text=info, font=("Courier New", 8),
-                     bg=BORDER, fg=SUBTEXT, justify="left",
-                     width=22).pack(side="left", padx=8, pady=4)
-
-            # Thumbnails
-            imgs_frame = tk.Frame(card, bg=BORDER)
-            imgs_frame.pack(side="right", padx=6, pady=4)
-
-            orig_img = self._thumb(orig_path, bbox=bbox)
-            if orig_img:
-                self._thumb_refs.append(orig_img)
-                col = tk.Frame(imgs_frame, bg=BORDER)
-                col.pack(side="left", padx=3)
-                tk.Label(col, image=orig_img, bg=BORDER).pack()
-                tk.Label(col, text="ORIGINAL", font=("Courier New", 7),
-                         bg=BORDER, fg=SUBTEXT).pack()
-
-            crop_path = find_crop_path(orig_path)
-            crop_img  = self._thumb(crop_path) if crop_path else None
-            if crop_img:
-                self._thumb_refs.append(crop_img)
-                col2 = tk.Frame(imgs_frame, bg=BORDER)
-                col2.pack(side="left", padx=3)
-                tk.Label(col2, image=crop_img, bg=BORDER).pack()
-                tk.Label(col2, text="CROP", font=("Courier New", 7),
-                         bg=BORDER, fg=SUBTEXT).pack()
-            elif crop_path is None:
-                tk.Label(imgs_frame, text="crop não\nencontrado",
-                         font=("Courier New", 7),
-                         bg=BORDER, fg=DANGER).pack(side="left", padx=8)
-
-        self._ex_canvas.yview_moveto(0)
-
-    def _thumb(self, path, size=(200, 140), bbox=None):
-        if not path or not os.path.exists(path):
-            return None
-        try:
-            img = cv2.imread(path)
-            if img is None:
-                return None
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            if bbox is not None:
-                h, w = img.shape[:2]
-                cv2.rectangle(img,
-                              (int(bbox[0]*w), int(bbox[1]*h)),
-                              (int(bbox[2]*w), int(bbox[3]*h)),
-                              (79, 142, 247), max(2, w // 200))
-            pil = Image.fromarray(img)
-            pil.thumbnail(size, Image.LANCZOS)
-            return ImageTk.PhotoImage(pil)
-        except Exception:
-            return None
+                f.write("  exemplos: nenhuma imagem nesta faixa\n")
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+def sanitize_filename(text: str) -> str:
+    keep = []
+    for ch in text:
+        if ch.isalnum() or ch in {"-", "_", "."}:
+            keep.append(ch)
+        else:
+            keep.append("_")
+    return "".join(keep).strip("_") or "sample"
+
+
+def draw_bbox_on_original(orig: np.ndarray, bbox: np.ndarray) -> np.ndarray:
+    img = orig.copy()
+    h, w = img.shape[:2]
+    x1 = int(max(0, min(w - 1, bbox[0] * w)))
+    y1 = int(max(0, min(h - 1, bbox[1] * h)))
+    x2 = int(max(0, min(w - 1, bbox[2] * w)))
+    y2 = int(max(0, min(h - 1, bbox[3] * h)))
+
+    cv2.rectangle(img, (x1, y1), (x2, y2), (35, 220, 35), 3)
+    cv2.putText(
+        img,
+        "bbox",
+        (max(8, x1), max(28, y1 - 10)),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.9,
+        (35, 220, 35),
+        2,
+        cv2.LINE_AA,
+    )
+    return img
+
+
+def resize_to_height(img: np.ndarray, target_h: int) -> np.ndarray:
+    h, w = img.shape[:2]
+    if h <= 0 or w <= 0:
+        return np.zeros((target_h, target_h, 3), dtype=np.uint8)
+    scale = target_h / h
+    target_w = max(1, int(w * scale))
+    return cv2.resize(img, (target_w, target_h), interpolation=cv2.INTER_AREA)
+
+
+def build_example_panel(orig_with_bbox: np.ndarray, crop_img: np.ndarray, area: float, key: str) -> np.ndarray:
+    target_h = 360
+    left = resize_to_height(orig_with_bbox, target_h)
+    right = resize_to_height(crop_img, target_h)
+    separator = np.full((target_h, 12, 3), 28, dtype=np.uint8)
+    panel = np.concatenate([left, separator, right], axis=1)
+
+    cv2.putText(
+        panel,
+        f"key={key} | area={area:.4f}",
+        (12, 30),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.75,
+        (255, 255, 255),
+        2,
+        cv2.LINE_AA,
+    )
+    cv2.putText(
+        panel,
+        "original com bbox",
+        (12, target_h - 14),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.65,
+        (225, 225, 225),
+        2,
+        cv2.LINE_AA,
+    )
+    cv2.putText(
+        panel,
+        "crop editado",
+        (left.shape[1] + separator.shape[1] + 12, target_h - 14),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.65,
+        (225, 225, 225),
+        2,
+        cv2.LINE_AA,
+    )
+    return panel
+
+
+def select_evenly_spaced(indices: Sequence[int], max_count: int) -> List[int]:
+    if max_count <= 0:
+        return []
+    if len(indices) <= max_count:
+        return list(indices)
+
+    positions = np.linspace(0, len(indices) - 1, num=max_count, dtype=int)
+    return [indices[p] for p in positions]
+
+
+def save_example_images(
+    output_dir: Path,
+    records: Sequence[PairRecord],
+    area_balance: Sequence[BinStatus],
+    samples_per_bin: int,
+) -> Path:
+    examples_dir = output_dir / "examples"
+    examples_dir.mkdir(parents=True, exist_ok=True)
+    index_csv_path = output_dir / "examples_index.csv"
+
+    with index_csv_path.open("w", encoding="utf-8") as f:
+        f.write("faixa,status,rank,key,area,orig_path,crop_path,example_image\n")
+
+        for bin_item in area_balance:
+            folder_name = sanitize_filename(f"{bin_item.label}_{bin_item.status}")
+            bin_dir = examples_dir / folder_name
+            bin_dir.mkdir(parents=True, exist_ok=True)
+
+            selected_indices = select_evenly_spaced(bin_item.indices, samples_per_bin)
+
+            if not selected_indices:
+                continue
+
+            for rank, rec_idx in enumerate(selected_indices, start=1):
+                rec = records[rec_idx]
+                orig = cv2.imread(str(rec.orig_path))
+                crop = cv2.imread(str(rec.crop_path))
+                if orig is None or crop is None:
+                    continue
+
+                orig_bbox = draw_bbox_on_original(orig, rec.bbox)
+                panel = build_example_panel(orig_bbox, crop, rec.area, rec.key)
+
+                filename = sanitize_filename(f"{rank:02d}_{rec.key}.jpg")
+                out_file = bin_dir / filename
+                cv2.imwrite(str(out_file), panel)
+
+                f.write(
+                    f"{bin_item.label},{bin_item.status},{rank},{rec.key},{rec.area:.6f},"
+                    f"{rec.orig_path},{rec.crop_path},{out_file}\n"
+                )
+
+    return index_csv_path
+
+
+def write_pair_catalog_csv(output_path: Path, records: Sequence[PairRecord], area_balance: Sequence[BinStatus]) -> None:
+    row_status: Dict[int, Tuple[str, str]] = {}
+    for bin_item in area_balance:
+        for idx in bin_item.indices:
+            row_status[idx] = (bin_item.label, bin_item.status)
+
+    with output_path.open("w", encoding="utf-8") as f:
+        f.write("key,orig_path,crop_path,width,height,area,aspect_ratio,bin,status\n")
+        for idx, rec in enumerate(records):
+            bin_label, status = row_status.get(idx, ("NA", "NA"))
+            f.write(
+                f"{rec.key},{rec.orig_path},{rec.crop_path},{rec.width},{rec.height},"
+                f"{rec.area:.6f},{rec.aspect_ratio:.6f},{bin_label},{status}\n"
+            )
+
+
+def write_csv_balance(output_path: Path, rows: Sequence[BinStatus]) -> None:
+    with output_path.open("w", encoding="utf-8") as f:
+        f.write("faixa,count,percent,ideal_count,status\n")
+        for row in rows:
+            f.write(f"{row.label},{row.count},{row.percent:.4f},{row.ideal_count:.4f},{row.status}\n")
+
+
+def generate_plots(
+    output_path: Path,
+    total_origin: int,
+    total_crop: int,
+    records: Sequence[PairRecord],
+    missing_crop: Sequence[Path],
+    orphan_crop: Sequence[Path],
+    area_balance: Sequence[BinStatus],
+) -> None:
+    areas = np.array([r.area for r in records], dtype=np.float32)
+    widths = np.array([r.width for r in records], dtype=np.float32)
+    heights = np.array([r.height for r in records], dtype=np.float32)
+
+    margins = np.vstack([r.margins for r in records])
+
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    fig.suptitle("Diagnostico do Dataset", fontsize=16)
+
+    labels_pairs = ["Pares validos", "Orig sem crop", "Crop orfao"]
+    values_pairs = [len(records), len(missing_crop), len(orphan_crop)]
+    colors_pairs = ["#4c78a8", "#f58518", "#e45756"]
+    axes[0, 0].bar(labels_pairs, values_pairs, color=colors_pairs)
+    axes[0, 0].set_title("Integridade de pareamento")
+    axes[0, 0].set_ylabel("Quantidade")
+
+    axes[0, 1].hist(areas, bins=20, color="#72b7b2", edgecolor="black", alpha=0.9)
+    axes[0, 1].set_title("Distribuicao de area do bbox")
+    axes[0, 1].set_xlabel("Area normalizada")
+    axes[0, 1].set_ylabel("Quantidade")
+
+    bin_labels = [b.label for b in area_balance]
+    bin_counts = [b.count for b in area_balance]
+    ideal = [b.ideal_count for b in area_balance]
+    color_map = {"EXCESSO": "#e45756", "FALTANDO": "#f58518", "OK": "#54a24b"}
+    bar_colors = [color_map[b.status] for b in area_balance]
+    axes[1, 0].bar(bin_labels, bin_counts, color=bar_colors)
+    axes[1, 0].plot(bin_labels, ideal, color="#4c78a8", linestyle="--", linewidth=2, label="ideal")
+    axes[1, 0].set_title("Excesso/Falta por faixa de area")
+    axes[1, 0].set_xlabel("Faixas")
+    axes[1, 0].set_ylabel("Quantidade")
+    axes[1, 0].tick_params(axis="x", rotation=35)
+    axes[1, 0].legend()
+
+    axes[1, 1].scatter(widths, heights, c=areas, cmap="viridis", alpha=0.65, s=26)
+    axes[1, 1].set_title("Resolucao das imagens (cor = area bbox)")
+    axes[1, 1].set_xlabel("Largura")
+    axes[1, 1].set_ylabel("Altura")
+
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    fig.savefig(output_path, dpi=180)
+    plt.close(fig)
+
+    fig2, ax2 = plt.subplots(figsize=(10, 5))
+    ax2.boxplot(
+        [margins[:, 0], margins[:, 1], margins[:, 2], margins[:, 3]],
+        labels=["left", "top", "right", "bottom"],
+        patch_artist=True,
+        boxprops={"facecolor": "#72b7b2", "alpha": 0.8},
+    )
+    ax2.set_title("Distribuicao das margens normalizadas")
+    ax2.set_ylabel("Margem")
+    fig2.tight_layout()
+    margins_path = output_path.with_name("margins_boxplot.png")
+    fig2.savefig(margins_path, dpi=180)
+    plt.close(fig2)
+
+    log.info("Grafico principal salvo em: %s", output_path)
+    log.info("Grafico de margens salvo em: %s", margins_path)
+
+    log.info(
+        "Resumo rapido: originais=%d | crops=%d | pares=%d | faltando_crop=%d | crop_orfao=%d",
+        total_origin,
+        total_crop,
+        len(records),
+        len(missing_crop),
+        len(orphan_crop),
+    )
+
+
+def validate_bins(bins: Sequence[float]) -> List[float]:
+    unique_sorted = sorted(set(float(v) for v in bins))
+    if not unique_sorted:
+        raise ValueError("Informe ao menos um valor de bin.")
+    if unique_sorted[0] <= 0:
+        raise ValueError("Os bins devem ser > 0.")
+    if unique_sorted[-1] > 1.0:
+        raise ValueError("Os bins devem estar no intervalo (0, 1].")
+    return unique_sorted
+
+
+def main() -> None:
+    args = parse_args()
+
+    origin_dir = Path(args.origin_dir)
+    crop_dir = Path(args.crop_dir)
+    output_base = Path(args.output_dir)
+    cache_path = Path(args.cache_path)
+
+    if not origin_dir.exists() or not crop_dir.exists():
+        raise FileNotFoundError(
+            f"Pastas nao encontradas. Esperado: {origin_dir} e {crop_dir}"
+        )
+
+    bins = validate_bins(args.bins)
+    if args.threshold < 0 or args.threshold >= 1:
+        raise ValueError("--threshold deve estar no intervalo [0, 1).")
+    if args.samples_per_bin < 0:
+        raise ValueError("--samples-per-bin deve ser >= 0.")
+
+    origin_files = list_images(origin_dir)
+    crop_files = list_images(crop_dir)
+
+    log.info("Originais encontrados: %d", len(origin_files))
+    log.info("Crops encontrados: %d", len(crop_files))
+
+    if len(origin_files) == 0 or len(crop_files) == 0:
+        raise ValueError("Dataset vazio em uma das pastas.")
+
+    cache_map = load_cache_bboxes(cache_path)
+    records, missing_crop, orphan_crop = resolve_pairs(origin_files, crop_files, cache_map, args.max_workers)
+
+    if len(records) == 0:
+        raise ValueError("Nenhum par valido foi encontrado para analise.")
+
+    areas = np.array([r.area for r in records], dtype=np.float32)
+    aspects = np.array([r.aspect_ratio for r in records], dtype=np.float32)
+    margins = np.vstack([r.margins for r in records])
+
+    area_stats = summarize_numeric(areas)
+    aspect_stats = summarize_numeric(aspects)
+    margin_stats = {
+        "left": summarize_numeric(margins[:, 0]),
+        "top": summarize_numeric(margins[:, 1]),
+        "right": summarize_numeric(margins[:, 2]),
+        "bottom": summarize_numeric(margins[:, 3]),
+    }
+
+    area_balance = classify_bins(areas, bins=bins, threshold=args.threshold)
+    ext_counter = Counter(p.suffix.lower() for p in origin_files)
+
+    now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    run_output_dir = output_base / f"dataset_analise_{now}"
+    run_output_dir.mkdir(parents=True, exist_ok=True)
+
+    report_path = run_output_dir / "resumo.txt"
+    csv_path = run_output_dir / "balanceamento_faixas.csv"
+    catalog_csv_path = run_output_dir / "catalogo_pares.csv"
+    plot_path = run_output_dir / "diagnostico_dataset.png"
+
+    write_text_report(
+        output_path=report_path,
+        total_origin=len(origin_files),
+        total_crop=len(crop_files),
+        records=records,
+        missing_crop=missing_crop,
+        orphan_crop=orphan_crop,
+        area_stats=area_stats,
+        aspect_stats=aspect_stats,
+        margin_stats=margin_stats,
+        area_balance=area_balance,
+        ext_counter=ext_counter,
+    )
+    write_csv_balance(csv_path, area_balance)
+    write_pair_catalog_csv(catalog_csv_path, records, area_balance)
+    examples_csv_path = save_example_images(
+        output_dir=run_output_dir,
+        records=records,
+        area_balance=area_balance,
+        samples_per_bin=args.samples_per_bin,
+    )
+    generate_plots(
+        output_path=plot_path,
+        total_origin=len(origin_files),
+        total_crop=len(crop_files),
+        records=records,
+        missing_crop=missing_crop,
+        orphan_crop=orphan_crop,
+        area_balance=area_balance,
+    )
+
+    log.info("Relatorio salvo em: %s", report_path)
+    log.info("CSV salvo em: %s", csv_path)
+    log.info("Catalogo de pares salvo em: %s", catalog_csv_path)
+    log.info("Indice de exemplos salvo em: %s", examples_csv_path)
+    log.info("Exemplos visuais salvos em: %s", run_output_dir / "examples")
+    log.info("Analise concluida em: %s", run_output_dir)
+
+
 if __name__ == "__main__":
-    if not os.path.exists(CACHE_PATH):
-        r = tk.Tk(); r.withdraw()
-        messagebox.showerror("Erro", f"Cache não encontrado:\n{CACHE_PATH}")
-        r.destroy()
-    else:
-        App().mainloop()
+    setup_logging()
+    start_ts = datetime.datetime.now()
+    try:
+        main()
+    except Exception as exc:
+        log.exception("Falha na analise do dataset: %s", exc)
+        raise
+    finally:
+        elapsed = datetime.datetime.now() - start_ts
+        elapsed_sec = max(elapsed.total_seconds(), 0.0)
+        hh = math.floor(elapsed_sec // 3600)
+        mm = math.floor((elapsed_sec % 3600) // 60)
+        ss = math.floor(elapsed_sec % 60)
+        log.info("Tempo total: %02d:%02d:%02d", hh, mm, ss)
