@@ -1,274 +1,447 @@
-# train.py
-"""
-Treino do localizador de crop (versão com GIoU + metadata para inferência).
-Uso:
-  python train.py                   # tenta dataset/origin + dataset/cropped
-  python train.py --origins X --crops Y
-Saídas:
-  models/crop_localizer.pt    (melhor por val IoU)
-  models/last_crop_localizer.pt
-  worst_iou.json
-"""
-import os, json, random
-from pathlib import Path
-from typing import List, Optional, Tuple
-
-import cv2, numpy as np
-from PIL import Image
-from tqdm import tqdm
-
+import os
+import time
+import datetime
+import cv2
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader, Subset
-import torchvision.transforms as T
-import torchvision.models as models
+import torch.optim as optim
+from concurrent.futures import ThreadPoolExecutor
+from torch.utils.data import Dataset, DataLoader
+from torchvision import models, transforms
+from sklearn.model_selection import train_test_split
+from tqdm import tqdm
+import warnings
+warnings.filterwarnings('ignore')
 
-# ---------- utils ----------
-def xyxy_from_corners(corners: np.ndarray, H:int, W:int) -> Optional[np.ndarray]:
-    xs, ys = corners[:,0], corners[:,1]
-    x1,y1,x2,y2 = float(xs.min()), float(ys.min()), float(xs.max()), float(ys.max())
-    x1 = max(0.0, min(W-1.0, x1)); x2 = max(0.0, min(W-1.0, x2))
-    y1 = max(0.0, min(H-1.0, y1)); y2 = max(0.0, min(H-1.0, y2))
-    if x2 <= x1 or y2 <= y1: return None
-    return np.array([x1,y1,x2,y2], dtype=np.float32)
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def compute_bbox_orb(origin_path: Path, crop_path: Path) -> Optional[np.ndarray]:
-    origin = cv2.imread(str(origin_path), cv2.IMREAD_GRAYSCALE)
-    crop = cv2.imread(str(crop_path), cv2.IMREAD_GRAYSCALE)
-    if origin is None or crop is None: return None
-    H,W = origin.shape[:2]
-    orb = cv2.ORB_create(1200)
-    k1,d1 = orb.detectAndCompute(origin, None)
-    k2,d2 = orb.detectAndCompute(crop, None)
-    if d1 is None or d2 is None: return None
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-    try:
-        matches = bf.match(d2, d1)
-    except Exception:
-        return None
-    if len(matches) < 6: return None
-    pts_crop = np.float32([k2[m.queryIdx].pt for m in matches])
-    pts_origin = np.float32([k1[m.trainIdx].pt for m in matches])
-    M, mask = cv2.estimateAffinePartial2D(pts_crop, pts_origin, method=cv2.RANSAC, ransacReprojThreshold=5.0)
-    if M is None: return None
-    h,w = crop.shape[:2]
-    corners = np.float32([[0,0],[w,0],[w,h],[0,h]]).reshape(-1,1,2)
-    transformed = cv2.transform(corners, M).reshape(-1,2)
-    xyxy = xyxy_from_corners(transformed, H, W)
-    if xyxy is None: return None
-    x1,y1,x2,y2 = xyxy
-    return np.array([x1/W, y1/H, x2/W, y2/H], dtype=np.float32)
-
-def compute_bbox_template(origin_path: Path, crop_path: Path) -> Optional[np.ndarray]:
-    origin = cv2.imread(str(origin_path), cv2.IMREAD_GRAYSCALE)
-    crop = cv2.imread(str(crop_path), cv2.IMREAD_GRAYSCALE)
-    if origin is None or crop is None: return None
-    res = cv2.matchTemplate(origin, crop, cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, max_loc = cv2.minMaxLoc(res)
-    if max_val < 0.45: return None
-    H,W = origin.shape[:2]; h,w = crop.shape[:2]
-    x1,y1 = max_loc; x2,y2 = x1+w, y1+h
-    x1 = max(0,x1); y1 = max(0,y1); x2 = min(W-1,x2); y2 = min(H-1,y2)
-    return np.array([x1/W, y1/H, x2/W, y2/H], dtype=np.float32)
-
-# ---------- dataset ----------
-class CropLocalizationDataset(Dataset):
-    def __init__(self, origin_dir: str, crop_dir: str, resize: Tuple[int,int]=(320,320), augment: bool=False):
-        self.origin_dir = Path(origin_dir)
-        self.crop_dir = Path(crop_dir)
-        self.resize = resize
-        self.augment = augment
-        self.samples: List[Tuple[Path,Path,np.ndarray]] = []
-        self._build_index()
-        # apenas photometric augmentations (NÃO alterar geometria sem ajustar bbox)
-        trans = [T.Resize(self.resize)]
-        if self.augment:
-            trans.append(T.ColorJitter(0.12,0.12,0.12,0.02))
-        trans.append(T.ToTensor()) # [0,1]
-        self.base_transform = T.Compose(trans)
-
-    def _build_index(self):
-        origins = sorted([p for p in self.origin_dir.iterdir() if p.suffix.lower() in {".jpg",".jpeg",".png"}]) if self.origin_dir.exists() else []
-        crops = sorted([p for p in self.crop_dir.iterdir() if p.suffix.lower() in {".jpg",".jpeg",".png"}]) if self.crop_dir.exists() else []
-        crop_map = {p.name: p for p in crops}
-        for o in origins:
-            c = crop_map.get(o.name)
-            if c is None:
-                candidates = [p for p in crops if p.stem in o.stem or o.stem in p.stem]
-                c = candidates[0] if candidates else None
-            if c is None: continue
-            bbox = compute_bbox_orb(o,c)
-            if bbox is None:
-                bbox = compute_bbox_template(o,c)
-            if bbox is None: continue
-            self.samples.append((o,c,bbox))
-        if len(self.samples) == 0:
-            raise RuntimeError(f"Nenhuma amostra válida encontrada em {self.origin_dir} / {self.crop_dir}.")
-
-    def __len__(self): return len(self.samples)
+# ============ DATASET OTIMIZADO (CARREGAMENTO SOB DEMANDA) ============
+class CropDataset(Dataset):
+    def __init__(self, original_paths, cropped_paths, bbox_data, img_size=300):
+        self.img_size = img_size
+        self.pairs = []
+        
+        print("Preparando dataset...")
+        for orig_path, crop_path, bbox_norm in zip(original_paths, cropped_paths, bbox_data):
+            try:
+                # Armazenar apenas os caminhos e bounding boxes já calculados
+                self.pairs.append({
+                    'orig_path': orig_path,
+                    'crop_path': crop_path,
+                    'bbox': bbox_norm.astype(np.float32),
+                })
+            except Exception as e:
+                print(f"Erro ao processar {orig_path}: {e}")
+                continue
+        
+        print(f"Dataset preparado: {len(self.pairs)} pares válidos")
+    
+    def __len__(self):
+        return len(self.pairs)
+    
     def __getitem__(self, idx):
-        origin_path, _, bbox = self.samples[idx]
-        img = Image.open(origin_path).convert("RGB")
-        img_t = self.base_transform(img)
-        return img_t, torch.from_numpy(bbox).float()
+        pair = self.pairs[idx]
+        
+        # Carregar imagem original somente quando necessário
+        orig = cv2.imread(pair['orig_path'])
+        if orig is None:
+            # Retornar uma imagem padrão em caso de erro
+            dummy_img = torch.zeros(3, self.img_size, self.img_size, dtype=torch.float32)
+            dummy_bbox = np.array([0.05, 0.05, 0.95, 0.95], dtype=np.float32)
+            return dummy_img, dummy_bbox
+        
+        # Pré-processar imagem original
+        orig_rgb = cv2.cvtColor(orig, cv2.COLOR_BGR2RGB)
+        orig_resized = cv2.resize(orig_rgb, (self.img_size, self.img_size))
+        orig_tensor = transforms.ToTensor()(orig_resized)
+        orig_tensor = transforms.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        )(orig_tensor)
+        
+        return orig_tensor, pair['bbox']
 
-# ---------- stats ----------
-def compute_dataset_mean_std(dataset: CropLocalizationDataset, sample_limit: int = 500):
-    import numpy as np
-    n = min(len(dataset), sample_limit)
-    idxs = random.sample(range(len(dataset)), n)
-    sums = np.zeros(3); sums_sq = np.zeros(3); px = 0
-    for i in idxs:
-        img_t, _ = dataset[i]
-        arr = img_t.numpy()
-        h,w = arr.shape[1], arr.shape[2]; px += h*w
-        sums += arr.reshape(3, -1).sum(axis=1)
-        sums_sq += (arr.reshape(3, -1)**2).sum(axis=1)
-    mean = sums/px; var = (sums_sq/px) - (mean**2); std = np.sqrt(np.maximum(var,1e-6))
-    return mean.tolist(), std.tolist()
+# Função para pré-calcular bounding boxes (executada uma vez)
+def _compute_bbox_for_pair(orig_path, crop_path):
+    """Processa um único par (original, crop) e retorna o bbox normalizado."""
+    try:
+        orig = cv2.imread(orig_path)
+        crop = cv2.imread(crop_path)
+        if orig is None or crop is None:
+            return np.array([0.05, 0.05, 0.95, 0.95], dtype=np.float32)
 
-def compute_bbox_stats(dataset: CropLocalizationDataset):
-    arr = np.stack([s[2] for s in dataset.samples], axis=0)
-    widths = (arr[:,2]-arr[:,0]); heights = (arr[:,3]-arr[:,1])
-    stats = {"width_p": [float(np.percentile(widths, p)) for p in [50,75,90,95,99]],
-             "height_p":[float(np.percentile(heights,p)) for p in [50,75,90,95,99]],
-             "width_mean": float(widths.mean()), "height_mean": float(heights.mean())}
-    return stats
+        orig_h, orig_w = orig.shape[:2]
 
-# ---------- model ----------
-def build_model(pretrained=True):
-    weights = models.ResNet18_Weights.IMAGENET1K_V1 if pretrained else None
-    m = models.resnet18(weights=weights)
-    in_f = m.fc.in_features
-    m.fc = nn.Sequential(nn.Dropout(0.2), nn.Linear(in_f,128), nn.ReLU(inplace=True), nn.Linear(128,4), nn.Sigmoid())
-    return m
+        # Template matching otimizado
+        gray_orig = cv2.cvtColor(orig, cv2.COLOR_BGR2GRAY)
+        gray_crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
 
-# ---------- GIoU ----------
-def giou_tensor(pred: torch.Tensor, target: torch.Tensor, eps=1e-6):
-    # pred, target: N x 4 (xyxy normalized)
-    px1, py1, px2, py2 = pred[:,0], pred[:,1], pred[:,2], pred[:,3]
-    tx1, ty1, tx2, ty2 = target[:,0], target[:,1], target[:,2], target[:,3]
-    ix1 = torch.max(px1, tx1); iy1 = torch.max(py1, ty1)
-    ix2 = torch.min(px2, tx2); iy2 = torch.min(py2, ty2)
-    iw = (ix2 - ix1).clamp(min=0); ih = (iy2 - iy1).clamp(min=0)
-    inter = iw * ih
-    area_p = (px2 - px1).clamp(min=0) * (py2 - py1).clamp(min=0)
-    area_t = (tx2 - tx1).clamp(min=0) * (ty2 - ty1).clamp(min=0)
-    union = area_p + area_t - inter + eps
+        # Usar método mais eficiente de template matching
+        result = cv2.matchTemplate(gray_orig, gray_crop, cv2.TM_CCOEFF_NORMED)
+        _, _, _, max_loc = cv2.minMaxLoc(result)
+        x1, y1 = max_loc
+        x2, y2 = x1 + crop.shape[1], y1 + crop.shape[0]
+
+        return np.array([
+            x1 / orig_w,
+            y1 / orig_h,
+            x2 / orig_w,
+            y2 / orig_h
+        ], dtype=np.float32)
+
+    except Exception as e:
+        print(f"Erro ao calcular bbox para {orig_path}: {e}")
+        return np.array([0.05, 0.05, 0.95, 0.95], dtype=np.float32)
+
+
+def compute_bounding_boxes(orig_paths, crop_paths, cache_path=None, max_workers=None):
+    """Função para calcular bounding boxes (com cache e paralelismo)."""
+    if cache_path is not None and os.path.exists(cache_path):
+        try:
+            import pickle
+            with open(cache_path, "rb") as f:
+                cache = pickle.load(f)
+            if cache.get("orig_paths") == orig_paths and cache.get("crop_paths") == crop_paths:
+                print("Carregando bboxes do cache")
+                return cache.get("bboxes", [])
+        except Exception as e:
+            print(f"Aviso: falha ao ler cache de bbox ({cache_path}): {e}")
+
+    print("Calculando bounding boxes (isso será feito apenas uma vez)...")
+    if max_workers is None:
+        max_workers = os.cpu_count() or 4
+
+    bbox_list = []
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for bbox in tqdm(executor.map(_compute_bbox_for_pair, orig_paths, crop_paths), total=len(orig_paths)):
+            bbox_list.append(bbox)
+
+    if cache_path is not None:
+        try:
+            os.makedirs(os.path.dirname(cache_path) or ".", exist_ok=True)
+            import pickle
+            with open(cache_path, "wb") as f:
+                pickle.dump({
+                    "orig_paths": orig_paths,
+                    "crop_paths": crop_paths,
+                    "bboxes": bbox_list,
+                }, f)
+            print(f"Cache de bboxes salvo em: {cache_path}")
+        except Exception as e:
+            print(f"Aviso: falha ao salvar cache de bbox ({cache_path}): {e}")
+
+    return bbox_list
+
+
+# ============ MODELO OTIMIZADO ============
+class MarginAwareCropModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        # EfficientNet-B0 como backbone
+        try:
+            # PyTorch >= 0.13
+            backbone = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.IMAGENET1K_V1)
+        except AttributeError:
+            # PyTorch < 0.13
+            backbone = models.efficientnet_b0(pretrained=True)
+        
+        # Remover a cabeça final para manter apenas features
+        self.features = backbone.features
+        
+        # Adicionar global average pooling explícito
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        
+        # Regressor otimizado
+        self.regressor = nn.Sequential(
+            nn.Dropout(0.3),  # Reduzindo levemente o dropout
+            nn.Linear(1280, 512),
+            nn.BatchNorm1d(512),  # Adicionando batch normalization
+            nn.LeakyReLU(0.1),
+            nn.Dropout(0.2),  # Reduzindo levemente o dropout
+            nn.Linear(512, 128),
+            nn.BatchNorm1d(128),
+            nn.LeakyReLU(0.1),
+            nn.Linear(128, 4)  # (x1, y1, x2, y2) normalizados
+        )
+        
+        # Inicialização inteligente para saída próxima de margens de 5-10%
+        nn.init.constant_(self.regressor[-1].bias, 0.0)
+        self.regressor[-1].bias.data[0] = 0.07  # x1 ~ 7%
+        self.regressor[-1].bias.data[1] = 0.07  # y1 ~ 7%
+        self.regressor[-1].bias.data[2] = 0.93  # x2 ~ 93%
+        self.regressor[-1].bias.data[3] = 0.93  # y2 ~ 93%
+    
+    def forward(self, x):
+        x = self.features(x)
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        return torch.sigmoid(self.regressor(x))  # Forçar saída em [0,1]
+
+
+# ============ LOSS FUNCTIONS OTIMIZADAS ============
+def iou_loss(pred, target):
+    """IoU loss robusto"""
+    pred = pred.clamp(1e-6, 1 - 1e-6)
+    target = target.clamp(1e-6, 1 - 1e-6)
+    
+    x1 = torch.max(pred[:, 0], target[:, 0])
+    y1 = torch.max(pred[:, 1], target[:, 1])
+    x2 = torch.min(pred[:, 2], target[:, 2])
+    y2 = torch.min(pred[:, 3], target[:, 3])
+    
+    inter = torch.clamp(x2 - x1, min=0) * torch.clamp(y2 - y1, min=0)
+    pred_area = (pred[:, 2] - pred[:, 0]) * (pred[:, 3] - pred[:, 1])
+    target_area = (target[:, 2] - target[:, 0]) * (target[:, 3] - target[:, 1])
+    
+    union = pred_area + target_area - inter + 1e-6
     iou = inter / union
-    cx1 = torch.min(px1, tx1); cy1 = torch.min(py1, ty1)
-    cx2 = torch.max(px2, tx2); cy2 = torch.max(py2, ty2)
-    cw = (cx2 - cx1).clamp(min=0); ch = (cy2 - cy1).clamp(min=0)
-    convex = cw * ch + eps
-    giou = iou - (convex - union) / convex
-    return giou.clamp(min=-1.0, max=1.0)
+    return 1 - iou.mean()
 
-# ---------- training loop ----------
-def train_loop(train_loader, val_loader, device, epochs=12, lr=1e-4, save_dir="models"):
-    os.makedirs(save_dir, exist_ok=True)
-    model = build_model(pretrained=True).to(device)
-    opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-5)
-    # Removed verbose argument for compatibility with older torch versions
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(opt, mode='max', factor=0.5, patience=3)
-    crit = nn.SmoothL1Loss()
-    best_val = 0.0
-    for ep in range(1, epochs+1):
+def margin_aware_loss(pred, target):
+    """
+    LOSS CRÍTICA: Penaliza DEVIATION DAS MARGENS RELATIVAS
+    Foca na diferença percentual das margens em relação ao conteúdo
+    """
+    # Calcular margens normalizadas (esquerda, topo, direita, baixo)
+    pred_margins = torch.stack([
+        pred[:, 0],                    # esquerda
+        pred[:, 1],                    # topo
+        1.0 - pred[:, 2],              # direita
+        1.0 - pred[:, 3]               # baixo
+    ], dim=1)
+    
+    target_margins = torch.stack([
+        target[:, 0],
+        target[:, 1],
+        1.0 - target[:, 2],
+        1.0 - target[:, 3]
+    ], dim=1)
+    
+    # Erro relativo das margens (normalizado pelo tamanho do conteúdo)
+    content_width = pred[:, 2] - pred[:, 0]
+    content_height = pred[:, 3] - pred[:, 1]
+    
+    # Penalização mais forte para margens pequenas (onde erro é mais perceptível)
+    margin_error = torch.abs(pred_margins - target_margins)
+    margin_error[:, 0] /= (content_width + 1e-6)  # margem esquerda relativa à largura
+    margin_error[:, 2] /= (content_width + 1e-6)  # margem direita
+    margin_error[:, 1] /= (content_height + 1e-6) # margem topo
+    margin_error[:, 3] /= (content_height + 1e-6) # margem baixo
+    
+    return margin_error.mean()
+
+def combined_loss(pred, target, alpha=0.5):
+    """
+    Combinação balanceada:
+    - alpha * IoU loss (precisão do bbox)
+    - (1-alpha) * Margin loss (precisão DAS MARGENS - PRIORIDADE)
+    """
+    return alpha * iou_loss(pred, target) + (1 - alpha) * margin_aware_loss(pred, target)
+
+
+# ============ TREINAMENTO OTIMIZADO ============
+def train():
+    # Configurações otimizadas
+    IMG_SIZE = 360  # Aumentar para melhor resolução (se a GPU permitir)
+    BATCH_SIZE = 16  # Pode ser aumentado dependendo da GPU
+    NUM_WORKERS = os.cpu_count() if os.cpu_count() is not None else 4
+    EPOCHS = 150
+    PATIENCE = 25  # Mais tolerante para convergência fina das margens
+    
+    # Carregar paths
+    orig_dir = "dataset/origin"
+    crop_dir = "dataset/cropped"
+    
+    if not os.path.exists(orig_dir) or not os.path.exists(crop_dir):
+        raise FileNotFoundError(f"Pastas não encontradas. Estrutura esperada:\n  {orig_dir}\n  {crop_dir}")
+    
+    orig_files = sorted([os.path.join(orig_dir, f) for f in os.listdir(orig_dir) 
+                        if f.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp'))])
+    crop_files = sorted([os.path.join(crop_dir, f) for f in os.listdir(crop_dir)
+                        if f.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp')) and '_editado' in f.lower()])
+    
+    # Mapear pares por nome base
+    orig_dict = {os.path.splitext(os.path.basename(f))[0].replace('_editado', ''): f for f in orig_files}
+    crop_dict = {os.path.splitext(os.path.basename(f))[0].replace('_editado', ''): f for f in crop_files}
+    common_names = set(orig_dict.keys()) & set(crop_dict.keys())
+    
+    orig_paths = [orig_dict[name] for name in common_names]
+    crop_paths = [crop_dict[name] for name in common_names]
+    
+    print(f"Encontrados {len(common_names)} pares de imagens")
+    if len(common_names) < 10:
+        raise ValueError("Dataset muito pequeno! Mínimo recomendado: 50 pares")
+    
+    # Calcular bounding boxes uma única vez (otimização principal)
+    # O cache é salvo em disco para evitar recalcular em execuções futuras.
+    cache_path = os.path.join("models", "bbox_cache.pkl")
+    bbox_data = compute_bounding_boxes(orig_paths, crop_paths, cache_path=cache_path)
+    
+    # Divisão treino/validação
+    train_orig, val_orig, train_crop, val_crop, train_bbox, val_bbox = train_test_split(
+        orig_paths, crop_paths, bbox_data, test_size=0.1, random_state=42
+    )
+    
+    # Criar datasets (agora com bounding boxes pré-calculados)
+    train_dataset = CropDataset(train_orig, train_crop, train_bbox, img_size=IMG_SIZE)
+    val_dataset = CropDataset(val_orig, val_crop, val_bbox, img_size=IMG_SIZE)
+    
+    if len(train_dataset) == 0 or len(val_dataset) == 0:
+        raise ValueError("Dataset vazio após pré-processamento!")
+    
+    # Dataloaders otimizados
+    train_loader = DataLoader(
+        train_dataset, batch_size=BATCH_SIZE, shuffle=True,
+        num_workers=NUM_WORKERS, pin_memory=True, prefetch_factor=2, persistent_workers=True
+    )
+    val_loader = DataLoader(
+        val_dataset, batch_size=BATCH_SIZE, shuffle=False,
+        num_workers=NUM_WORKERS, pin_memory=True, prefetch_factor=2, persistent_workers=True
+    )
+    
+    # Modelo e otimizador otimizados
+    model = MarginAwareCropModel().to(DEVICE)
+    # Otimizador com lookahead (opcional, descomentar se quiser usar)
+    optimizer = optim.AdamW(model.parameters(), lr=3e-4, weight_decay=1e-4)
+    
+    # Scheduler otimizado
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.5, patience=6  # Modo 'min' para loss
+    )
+    
+    # Mixed Precision para Tensor Cores
+    scaler = torch.cuda.amp.GradScaler() if torch.cuda.is_available() else None
+    
+    # Early stopping
+    best_loss = float('inf')
+    patience_counter = 0
+    
+    # Treinamento otimizado
+    for epoch in range(EPOCHS):
+        # ===== TREINO =====
         model.train()
-        pbar = tqdm(train_loader, desc=f"Epoch {ep} train")
-        run = 0.0
-        for imgs, targets in pbar:
-            imgs = imgs.to(device); targets = targets.to(device)
-            preds = model(imgs).clamp(0.0,1.0)
-            l1 = crit(preds, targets)
-            g = giou_tensor(preds, targets).mean()
-            giou_loss = 1.0 - g
-            loss = 0.6 * l1 + 0.4 * giou_loss
-            opt.zero_grad(); loss.backward(); opt.step()
-            run += float(loss.item())
-            pbar.set_postfix({"loss": run/(pbar.n+1)})
-        val_iou, worst = validate(model, val_loader, device)
-        print(f"Epoch {ep} val_iou={val_iou:.4f}")
-        scheduler.step(val_iou)
-        ck = {"model_state": model.state_dict(), "metadata": {"resize": train_loader.dataset.dataset.resize if hasattr(train_loader.dataset,'dataset') else train_loader.dataset.resize}}
-        torch.save(ck, os.path.join(save_dir, "last_crop_localizer.pt"))
-        if val_iou > best_val:
-            best_val = val_iou
-            torch.save(ck, os.path.join(save_dir, "crop_localizer.pt"))
-        with open("worst_iou.json","w",encoding="utf-8") as fh:
-            json.dump({"worst":[{"iou":float(i),"path":p} for i,p in worst[:200]]}, fh, indent=2, ensure_ascii=False)
-    print("Treino finalizado. Best val IoU:", best_val)
+        train_loss = 0.0
+        
+        for inputs, targets in tqdm(train_loader, desc=f"Epoch {epoch+1}/{EPOCHS}", leave=False):
+            inputs, targets = inputs.to(DEVICE, non_blocking=True), targets.to(DEVICE, non_blocking=True)
+            
+            optimizer.zero_grad()
+            
+            if scaler:
+                with torch.cuda.amp.autocast():
+                    preds = model(inputs)
+                    loss = combined_loss(preds, targets, alpha=0.45)  # Dar mais peso às margens!
+                scaler.scale(loss).backward()
+                # Gradient clipping para estabilidade
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                preds = model(inputs)
+                loss = combined_loss(preds, targets, alpha=0.45)
+                loss.backward()
+                # Gradient clipping para estabilidade
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                optimizer.step()
+            
+            train_loss += loss.item()
+        
+        # ===== VALIDAÇÃO =====
+        model.eval()
+        val_loss = 0.0
+        val_iou = 0.0
+        val_margin_error = 0.0
+        
+        with torch.no_grad():
+            for inputs, targets in val_loader:
+                inputs, targets = inputs.to(DEVICE, non_blocking=True), targets.to(DEVICE, non_blocking=True)
+                
+                if scaler:
+                    with torch.cuda.amp.autocast():
+                        preds = model(inputs)
+                        loss = combined_loss(preds, targets, alpha=0.45)
+                else:
+                    preds = model(inputs)
+                    loss = combined_loss(preds, targets, alpha=0.45)
+                
+                val_loss += loss.item() * inputs.size(0)
+                
+                # Calcular IoU
+                x1 = torch.max(preds[:, 0], targets[:, 0])
+                y1 = torch.max(preds[:, 1], targets[:, 1])
+                x2 = torch.min(preds[:, 2], targets[:, 2])
+                y2 = torch.min(preds[:, 3], targets[:, 3])
+                
+                inter = torch.clamp(x2 - x1, min=0) * torch.clamp(y2 - y1, min=0)
+                pred_area = (preds[:, 2] - preds[:, 0]) * (preds[:, 3] - preds[:, 1])
+                target_area = (targets[:, 2] - targets[:, 0]) * (targets[:, 3] - targets[:, 1])
+                union = pred_area + target_area - inter + 1e-6
+                iou = inter / union
+                val_iou += iou.sum().item()
+                
+                # Calcular erro das margens
+                margin_err = margin_aware_loss(preds, targets)
+                val_margin_error += margin_err.item() * inputs.size(0)
+        
+        avg_train_loss = train_loss / len(train_loader)
+        avg_val_loss = val_loss / len(val_dataset)
+        avg_iou = val_iou / len(val_dataset)
+        avg_margin_err = val_margin_error / len(val_dataset)
+        
+        # Atualizar learning rate
+        prev_lr = optimizer.param_groups[0]['lr']
+        scheduler.step(avg_val_loss)
+        curr_lr = optimizer.param_groups[0]['lr']
+        if curr_lr < prev_lr:
+            print(f"LR reduzido: {prev_lr:.2e} -> {curr_lr:.2e}")
+        
+        print(f"Epoch {epoch+1}: Train Loss={avg_train_loss:.6f} | Val Loss={avg_val_loss:.6f} | "
+              f"Val IoU={avg_iou:.6f} | Margin Err={avg_margin_err:.6f}")
+        
+        # Early stopping baseado na loss de validação
+        if avg_val_loss < best_loss:
+            best_loss = avg_val_loss
+            patience_counter = 0
+            # Salvar melhor modelo
+            os.makedirs("models", exist_ok=True)
+            torch.save({
+                'model_state_dict': model.state_dict(),
+                'val_loss': best_loss,
+                'iou': avg_iou,
+                'margin_error': avg_margin_err,
+                'img_size': IMG_SIZE,
+                'epoch': epoch + 1
+            }, "models/best_model.pth")
+            print(f"Novo melhor modelo salvo (Val Loss: {best_loss:.6f} | IoU: {avg_iou:.6f} | Margin Err: {avg_margin_err:.6f})")
+        else:
+            patience_counter += 1
+            if patience_counter >= PATIENCE:
+                print(f"\nEarly stopping ativado após {epoch+1} épocas")
+                break
+    
+    print(f"\nTreinamento concluído! Melhor Val Loss: {best_loss:.6f} | IoU: {avg_iou:.6f} | Erro Margem: {avg_margin_err:.6f}")
 
-def validate(model, val_loader, device):
-    model.eval()
-    ious=[]; worst=[]
-    with torch.no_grad():
-        idx=0
-        dataset_obj = val_loader.dataset.dataset if hasattr(val_loader.dataset,"dataset") else val_loader.dataset
-        samples = getattr(dataset_obj, "samples", None)
-        for imgs, targets in val_loader:
-            imgs = imgs.to(device); targets = targets.to(device)
-            preds = model(imgs).clamp(0.0,1.0)
-            # compute IoU
-            px1,py1,px2,py2 = preds[:,0],preds[:,1],preds[:,2],preds[:,3]
-            tx1,ty1,tx2,ty2 = targets[:,0],targets[:,1],targets[:,2],targets[:,3]
-            ix1 = torch.max(px1, tx1); iy1 = torch.max(py1, ty1)
-            ix2 = torch.min(px2, tx2); iy2 = torch.min(py2, ty2)
-            iw = (ix2 - ix1).clamp(min=0); ih = (iy2 - iy1).clamp(min=0)
-            inter = (iw*ih).cpu().numpy()
-            area_p = ((px2-px1).clamp(min=0)*(py2-py1).clamp(min=0)).cpu().numpy()
-            area_t = ((tx2-tx1).clamp(min=0)*(ty2-ty1).clamp(min=0)).cpu().numpy()
-            union = area_p + area_t - inter + 1e-6
-            iou_batch = (inter/union).tolist()
-            for b,iou in enumerate(iou_batch):
-                ious.append(float(iou))
-                if samples is not None:
-                    origin_path = samples[idx + b][0]
-                    worst.append((float(iou), str(origin_path)))
-            idx += len(iou_batch)
-    mean_iou = float(np.mean(ious)) if len(ious)>0 else 0.0
-    worst.sort(key=lambda x:x[0])
-    return mean_iou, worst
+    # Registrar métricas finais em arquivo de log
+    try:
+        os.makedirs("logs", exist_ok=True)
+        log_path = os.path.join("logs", "training_metrics.txt")
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(
+                f"{now} - Epoch {epoch+1}: Train Loss={avg_train_loss:.6f} | Val Loss={avg_val_loss:.6f} | "
+                f"Val IoU={avg_iou:.6f} | Margin Err={avg_margin_err:.6f}\n"
+            )
+        print(f"Métricas salvas em: {log_path}")
+    except Exception as e:
+        print(f"Falha ao salvar métricas: {e}")
 
-# ---------- main ----------
-def main():
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--origins"); parser.add_argument("--crops")
-    parser.add_argument("--resize", type=int, nargs=2, default=(400,400))
-    parser.add_argument("--epochs", type=int, default=25); parser.add_argument("--batch", type=int, default=25)
-    parser.add_argument("--lr", type=float, default=1e-4); parser.add_argument("--val-split", type=float, default=0.12)
-    args = parser.parse_args()
-
-    origins = Path(args.origins) if args.origins else Path("dataset/origin")
-    crops = Path(args.crops) if args.crops else Path("dataset/cropped")
-    if not origins.exists() or not crops.exists():
-        print("Diretórios padrão não encontrados. Verifique dataset/origin e dataset/cropped ou passe --origins/--crops")
-        return
-
-    print(f"Usando origins = {origins}\nUsando crops   = {crops}")
-    ds = CropLocalizationDataset(str(origins), str(crops), resize=tuple(args.resize), augment=False)
-    mean,std = compute_dataset_mean_std(ds, sample_limit=500)
-    bbox_stats = compute_bbox_stats(ds)
-
-    # rebuild transform with normalization (no geometric augment)
-    t = [T.Resize(tuple(args.resize)), T.ToTensor(), T.Normalize(mean=mean, std=std)]
-    ds.base_transform = T.Compose(t)
-
-    n = len(ds); idxs = list(range(n)); random.shuffle(idxs)
-    split = int(n * args.val_split)
-    val_idxs = idxs[:split] if split>0 else []
-    train_idxs = idxs[split:] if split < n else idxs
-    train_ds = Subset(ds, train_idxs)
-    val_ds = Subset(ds, val_idxs) if len(val_idxs)>0 else Subset(ds, train_idxs[: max(1, len(train_idxs)//10)])
-    train_loader = DataLoader(train_ds, batch_size=args.batch, shuffle=True, num_workers=2, pin_memory=True)
-    val_loader = DataLoader(val_ds, batch_size=args.batch, shuffle=False, num_workers=2, pin_memory=True)
-
-    os.makedirs("models", exist_ok=True)
-    metadata = {"resize": tuple(args.resize), "mean": mean, "std": std, "bbox_stats": bbox_stats, "output_format": "xyxy"}
-    torch.save({"model_state": build_model(pretrained=True).state_dict(), "metadata": metadata}, os.path.join("models","init_crop_localizer.pt"))
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    train_loop(train_loader, val_loader, device, epochs=args.epochs, lr=args.lr, save_dir="models")
 
 if __name__ == "__main__":
-    main()
+    start_time = time.time()
+    train()
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    elapsed_hms = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+    print(f"Tempo total de execução: {elapsed_hms}")

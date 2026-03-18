@@ -16,6 +16,8 @@ __pycache__/
 venv/
 node_modules/
 
+dataset/
+
 # Build artifacts
 dist/
 build/

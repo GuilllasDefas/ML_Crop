@@ -31,43 +31,57 @@ def build_pairs(base_dir: Path) -> List[Tuple[Path, Path]]:
     return pairs
 
 class ThumbList(ttk.Frame):
-    def __init__(self, master, on_select, thumb_size=(108, 108)):
+    """A lightweight list widget for navigating image pairs.
+
+    This avoids loading image thumbnails for all items, which can be very slow
+    for large folders. It simply displays the filename list and only loads image
+    previews on demand when a row is selected.
+    """
+
+    def __init__(self, master, on_select):
         super().__init__(master)
         self.on_select = on_select
-        self.thumb_size = thumb_size
-        self.canvas = tk.Canvas(self, width=150, highlightthickness=0)
-        self.scroll = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
-        self.inner = ttk.Frame(self.canvas)
-        self.canvas.create_window((0, 0), window=self.inner, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.scroll.set)
-        self.inner.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        self.canvas.grid(row=0, column=0, sticky="ns")
-        self.scroll.grid(row=0, column=1, sticky="ns")
-        self.grid_rowconfigure(0, weight=1)
-        self.photos: List[ImageTk.PhotoImage] = []
-        self.buttons: List[tk.Button] = []
         self.current_index: Optional[int] = None
 
-    def populate(self, pairs: List[Tuple[Path, Path]]):
-        for b in self.buttons:
-            b.destroy()
-        self.photos.clear()
-        self.buttons.clear()
-        for idx, (orig, _) in enumerate(pairs):
-            try:
-                img = Image.open(orig).convert("RGB")
-                img.thumbnail(self.thumb_size, Image.LANCZOS)
-            except OSError:
-                img = Image.new("RGB", self.thumb_size, "#555")
-            ph = ImageTk.PhotoImage(img)
-            self.photos.append(ph)
-            btn = tk.Button(self.inner, image=ph, text=orig.name, compound="top",
-                            width=self.thumb_size[0], padx=2, pady=2,
-                            command=lambda i=idx: self._select(i))
-            btn.grid(row=idx, column=0, sticky="ew", pady=2)
-            self.buttons.append(btn)
+        self.listbox = tk.Listbox(self, activestyle="dotbox", exportselection=False)
+        self.scroll = ttk.Scrollbar(self, orient="vertical", command=self.listbox.yview)
+        self.listbox.configure(yscrollcommand=self.scroll.set)
+        self.listbox.grid(row=0, column=0, sticky="nsew")
+        self.scroll.grid(row=0, column=1, sticky="ns")
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
-    def _select(self, index: int):
+        self.listbox.bind("<<ListboxSelect>>", self._on_listbox_select)
+
+    def populate(self, pairs: List[Tuple[Path, Path]]):
+        self.listbox.delete(0, tk.END)
+        for orig, _ in pairs:
+            self.listbox.insert(tk.END, orig.name)
+
+    def mark_processed(self, index: int):
+        """Update the visual representation of an item that was validated."""
+        if index is None:
+            return
+        try:
+            label = self.listbox.get(index)
+        except tk.TclError:
+            return
+        if not label.startswith("✓ "):
+            self.listbox.delete(index)
+            self.listbox.insert(index, f"✓ {label}")
+
+    def _on_listbox_select(self, _evt):
+        sel = self.listbox.curselection()
+        if not sel:
+            return
+        index = sel[0]
+        self.current_index = index
+        self.on_select(index)
+
+    def select_index(self, index: int):
+        self.listbox.selection_clear(0, tk.END)
+        self.listbox.selection_set(index)
+        self.listbox.see(index)
         self.current_index = index
         self.on_select(index)
 
@@ -88,7 +102,7 @@ class ValidatorApp:
         self._build_ui()
         self._bind_keys()
         if self.pairs:
-            self.thumb_list._select(0)
+            self.thumb_list.select_index(0)
 
     def _apply_dark_theme(self):
         """Apply a dark theme to the interface."""
@@ -198,9 +212,13 @@ class ValidatorApp:
     def _update_status(self):
         total = len(self.pairs)
         done = len(self.processed)
-        idx = self.current_index + 1
+        remaining = total - done
+
+        processed_before = sum(1 for p in self.processed if p <= self.current_index)
+        position = (self.current_index + 1) - processed_before
+
         mark = " (validada)" if self.current_index in self.processed else ""
-        self.status_var.set(f"{idx}/{total}  |  Concluídas: {done}{mark}")
+        self.status_var.set(f"{position}/{remaining}  |  Concluídas: {done}{mark}")
 
     def validate_current(self):
         if self.current_index in self.processed:
@@ -213,6 +231,7 @@ class ValidatorApp:
             messagebox.showerror("Erro ao mover", str(e), parent=self.root)
             return
         self.processed.add(self.current_index)
+        self.thumb_list.mark_processed(self.current_index)
         self._update_status()
         self._advance()
 
@@ -249,7 +268,7 @@ class ValidatorApp:
             messagebox.showinfo("Concluído", "Todas as imagens foram validadas.")
             self.root.destroy()
             return
-        self.thumb_list._select(next_idx)
+        self.thumb_list.select_index(next_idx)
 
     def _choose_new_directory(self):
         chosen = filedialog.askdirectory(parent=self.root, title="Selecione a pasta com imagens originais")
@@ -270,7 +289,7 @@ class ValidatorApp:
         self.photo_edit = None
         self.root.title(f"Validação - {self.base_dir}")
         self.thumb_list.populate(self.pairs)
-        self.thumb_list._select(0)
+        self.thumb_list.select_index(0)
 
 def select_base_dir() -> Optional[Path]:
     root = tk.Tk()
