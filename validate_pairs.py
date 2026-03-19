@@ -97,6 +97,9 @@ class ValidatorApp:
         self.photo_edit: Optional[ImageTk.PhotoImage] = None
         self.img_orig: Optional[Image.Image] = None
         self.img_edit: Optional[Image.Image] = None
+        self._resize_job_orig: Optional[str] = None
+        self._resize_job_edit: Optional[str] = None
+        self._last_panel_size = {"orig": (0, 0), "edit": (0, 0)}
         self.project_root = Path(__file__).resolve().parent
         self._apply_dark_theme()  # Apply dark theme
         self._build_ui()
@@ -124,6 +127,7 @@ class ValidatorApp:
     def _build_ui(self):
         self.root.title(f"Validação - {self.base_dir}")
         self.root.minsize(1120, 660)
+        self.root.geometry("1280x760")
         self.root.columnconfigure(1, weight=1)
         self.root.rowconfigure(0, weight=1)
 
@@ -133,19 +137,30 @@ class ValidatorApp:
 
         right = ttk.Frame(self.root, padding=8)
         right.grid(row=0, column=1, sticky="nsew")
-        right.columnconfigure(0, weight=1)
-        right.columnconfigure(1, weight=1)
-        right.rowconfigure(1, weight=1)
+        right.columnconfigure(0, weight=1, minsize=self.preview_size[0])
+        right.columnconfigure(1, weight=1, minsize=self.preview_size[0])
+        right.rowconfigure(1, weight=1, minsize=self.preview_size[1])
 
         self.lbl_orig = ttk.Label(right, text="Original")
         self.lbl_edit = ttk.Label(right, text="Editada")
         self.lbl_orig.grid(row=0, column=0, sticky="ew", pady=(0, 6))
         self.lbl_edit.grid(row=0, column=1, sticky="ew", pady=(0, 6))
 
-        self.panel_orig = ttk.Label(right, relief="solid")
-        self.panel_edit = ttk.Label(right, relief="solid")
-        self.panel_orig.grid(row=1, column=0, padx=(0, 6), sticky="nsew")
-        self.panel_edit.grid(row=1, column=1, sticky="nsew")
+        self.panel_orig_container = ttk.Frame(right)
+        self.panel_edit_container = ttk.Frame(right)
+        self.panel_orig_container.grid(row=1, column=0, padx=(0, 6), sticky="nsew")
+        self.panel_edit_container.grid(row=1, column=1, sticky="nsew")
+        self.panel_orig_container.grid_propagate(False)
+        self.panel_edit_container.grid_propagate(False)
+        self.panel_orig_container.columnconfigure(0, weight=1)
+        self.panel_orig_container.rowconfigure(0, weight=1)
+        self.panel_edit_container.columnconfigure(0, weight=1)
+        self.panel_edit_container.rowconfigure(0, weight=1)
+
+        self.panel_orig = ttk.Label(self.panel_orig_container, relief="solid", anchor="center")
+        self.panel_edit = ttk.Label(self.panel_edit_container, relief="solid", anchor="center")
+        self.panel_orig.grid(row=0, column=0, sticky="nsew")
+        self.panel_edit.grid(row=0, column=0, sticky="nsew")
         self.panel_orig.bind("<Configure>", lambda e: self._on_panel_resize("orig", e.width, e.height))
         self.panel_edit.bind("<Configure>", lambda e: self._on_panel_resize("edit", e.width, e.height))
 
@@ -204,10 +219,27 @@ class ValidatorApp:
         setattr(self, attr, photo)
 
     def _on_panel_resize(self, kind: str, width: int, height: int):
+        if width <= 1 or height <= 1:
+            return
+
+        if self._last_panel_size.get(kind) == (width, height):
+            return
+        self._last_panel_size[kind] = (width, height)
+
         if kind == "orig":
-            self._render_to_panel(self.img_orig, self.panel_orig, "photo_orig", width, height)
+            if self._resize_job_orig:
+                self.root.after_cancel(self._resize_job_orig)
+            self._resize_job_orig = self.root.after(
+                70,
+                lambda: self._render_to_panel(self.img_orig, self.panel_orig, "photo_orig", width, height),
+            )
         else:
-            self._render_to_panel(self.img_edit, self.panel_edit, "photo_edit", width, height)
+            if self._resize_job_edit:
+                self.root.after_cancel(self._resize_job_edit)
+            self._resize_job_edit = self.root.after(
+                70,
+                lambda: self._render_to_panel(self.img_edit, self.panel_edit, "photo_edit", width, height),
+            )
 
     def _update_status(self):
         total = len(self.pairs)
