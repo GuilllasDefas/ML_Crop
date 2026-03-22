@@ -47,9 +47,16 @@ log.info(f"Usando dispositivo: {DEVICE}")
 
 # ============ DATASET OTIMIZADO (CARREGAMENTO SOB DEMANDA) ============
 class CropDataset(Dataset):
-    def __init__(self, original_paths, cropped_paths, bbox_data, img_size=300):
+    def __init__(self, original_paths, cropped_paths, bbox_data, img_size=300, training=False):
         self.img_size = img_size
+        self.training = training
         self.pairs = []
+
+        # Augmentações leves aplicadas apenas no treino (não alteram bbox)
+        self.color_aug = transforms.Compose([
+            transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.1, hue=0.02),
+            transforms.RandomGrayscale(p=0.03),
+        ]) if training else None
         
         log.info("Preparando dataset...")
         for orig_path, crop_path, bbox_norm in zip(original_paths, cropped_paths, bbox_data):
@@ -84,12 +91,24 @@ class CropDataset(Dataset):
         orig_rgb = cv2.cvtColor(orig, cv2.COLOR_BGR2RGB)
         orig_resized = cv2.resize(orig_rgb, (self.img_size, self.img_size))
         orig_tensor = transforms.ToTensor()(orig_resized)
+        bbox = pair['bbox'].copy()
+
+        if self.training:
+            # Augmentações de cor (não alteram bbox)
+            orig_tensor = self.color_aug(orig_tensor)
+
+            # Flip horizontal com ajuste de bbox (50% de chance)
+            if torch.rand(1).item() < 0.5:
+                orig_tensor = torch.flip(orig_tensor, dims=[2])
+                # x1_novo = 1 - x2_antigo, x2_novo = 1 - x1_antigo
+                bbox[0], bbox[2] = 1.0 - bbox[2], 1.0 - bbox[0]
+
         orig_tensor = transforms.Normalize(
             mean=[0.485, 0.456, 0.406],
             std=[0.229, 0.224, 0.225]
         )(orig_tensor)
-        
-        return orig_tensor, pair['bbox']
+
+        return orig_tensor, bbox
 
 # Função para pré-calcular bounding boxes (executada uma vez)
 def _compute_bbox_for_pair(orig_path, crop_path):
@@ -273,8 +292,8 @@ def combined_loss(pred, target, alpha=0.5):
 def train():
     # Configurações otimizadas
     IMG_SIZE = 360  # Aumentar para melhor resolução (se a GPU permitir)
-    BATCH_SIZE = 16  # Pode ser aumentado dependendo da GPU
-    NUM_WORKERS = os.cpu_count() if os.cpu_count() is not None else 4
+    BATCH_SIZE = 32  # RTX 3060 Ti 8GB suporta bem com img 360x360
+    NUM_WORKERS = min(os.cpu_count() or 4, 8)  # 8 workers suficientes, evita RAM excessiva
     EPOCHS = 100
     PATIENCE = 15  # Mais tolerante para convergência fina das margens
     
@@ -309,12 +328,12 @@ def train():
     
     # Divisão treino/validação
     train_orig, val_orig, train_crop, val_crop, train_bbox, val_bbox = train_test_split(
-        orig_paths, crop_paths, bbox_data, test_size=0.1, random_state=42
+        orig_paths, crop_paths, bbox_data, test_size=0.15, random_state=42
     )
     
     # Criar datasets (agora com bounding boxes pré-calculados)
-    train_dataset = CropDataset(train_orig, train_crop, train_bbox, img_size=IMG_SIZE)
-    val_dataset = CropDataset(val_orig, val_crop, val_bbox, img_size=IMG_SIZE)
+    train_dataset = CropDataset(train_orig, train_crop, train_bbox, img_size=IMG_SIZE, training=True)
+    val_dataset = CropDataset(val_orig, val_crop, val_bbox, img_size=IMG_SIZE, training=False)
     
     if len(train_dataset) == 0 or len(val_dataset) == 0:
         raise ValueError("Dataset vazio após pré-processamento!")
