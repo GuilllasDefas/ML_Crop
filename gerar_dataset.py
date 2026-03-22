@@ -94,6 +94,37 @@ def _scan_images(folder: Path) -> List[Path]:
     )
 
 
+def _purge_already_in_dataset(folder: Path) -> int:
+    """Remove da pasta de origem imagens que já existem em dataset/origin."""
+    project_root = Path(__file__).resolve().parent
+    origin_dir = project_root / "dataset" / "origin"
+    if not origin_dir.exists():
+        return 0
+
+    existing_stems: Set[str] = set()
+    for f in origin_dir.iterdir():
+        if f.is_file() and f.suffix.lower() in IMAGE_EXTENSIONS:
+            existing_stems.add(f.stem.lower())
+
+    if not existing_stems:
+        return 0
+
+    removed = 0
+    for f in list(folder.iterdir()):
+        if (
+            f.is_file()
+            and f.suffix.lower() in IMAGE_EXTENSIONS
+            and f.stem.lower() in existing_stems
+        ):
+            f.unlink()
+            log.info(f"Removida (já no dataset): {f.name}")
+            removed += 1
+
+    if removed:
+        log.info(f"Total removidas da pasta de origem: {removed}")
+    return removed
+
+
 # ── Canvas interativo ────────────────────────────────────────────────────────
 class CropCanvas(tk.Canvas):
     """Canvas com imagem e retângulo de recorte interativo."""
@@ -339,6 +370,7 @@ class FileList(ttk.Frame):
 
         self.listbox = tk.Listbox(
             self,
+            width=30,
             activestyle="dotbox",
             exportselection=False,
             bg="#3a3a3a",
@@ -369,6 +401,15 @@ class FileList(ttk.Frame):
         if not label.startswith("✓ "):
             self.listbox.delete(index)
             self.listbox.insert(index, f"✓ {label}")
+
+    def unmark_accepted(self, index: int):
+        try:
+            label = self.listbox.get(index)
+        except tk.TclError:
+            return
+        if label.startswith("✓ "):
+            self.listbox.delete(index)
+            self.listbox.insert(index, label[2:])
 
     def _on_listbox_select(self, _evt):
         sel = self.listbox.curselection()
@@ -401,11 +442,15 @@ class LabelerApp:
         self.project_root = Path(__file__).resolve().parent
         self._pil_img: Optional[Image.Image] = None
         self._predictions: dict[int, Tuple[int, int, int, int]] = {}
+        self._history: List[int] = []
+        self._accepted_sources: dict[int, Path] = {}
+        self._undo_stack: List[int] = []
 
         self._apply_dark_theme()
         self._build_ui()
         self._bind_keys()
         if self.image_paths:
+            self.file_list.populate(self.image_paths)
             self.file_list.select_index(0)
 
     def _apply_dark_theme(self):
@@ -421,6 +466,9 @@ class LabelerApp:
     def _bind_keys(self):
         self.root.bind("<Right>", lambda _e: self.accept_current())
         self.root.bind("<Left>", lambda _e: self.skip_current())
+        self.root.bind("<BackSpace>", lambda _e: self.go_back())
+        self.root.bind("<Control-z>", lambda _e: self.undo_last())
+        self.root.bind("<Control-Z>", lambda _e: self.undo_last())
         self.root.bind("<Escape>", lambda _e: self.root.destroy())
         self.root.bind("<r>", lambda _e: self._reset_crop())
         self.root.bind("<R>", lambda _e: self._reset_crop())
@@ -462,7 +510,7 @@ class LabelerApp:
         # Botões
         btn_frame = ttk.Frame(right)
         btn_frame.grid(row=3, column=0, sticky="ew", pady=(10, 0))
-        for i in range(5):
+        for i in range(7):
             btn_frame.columnconfigure(i, weight=1)
 
         ttk.Button(btn_frame, text="Aceitar (→)", command=self.accept_current).grid(
@@ -471,14 +519,20 @@ class LabelerApp:
         ttk.Button(btn_frame, text="Pular (←)", command=self.skip_current).grid(
             row=0, column=1, padx=(0, 6), sticky="ew"
         )
-        ttk.Button(btn_frame, text="Reset (R)", command=self._reset_crop).grid(
+        ttk.Button(btn_frame, text="Voltar (⌫)", command=self.go_back).grid(
             row=0, column=2, padx=(0, 6), sticky="ew"
         )
-        ttk.Button(btn_frame, text="Abrir Pasta", command=self._choose_directory).grid(
+        ttk.Button(btn_frame, text="Desfazer (Ctrl+Z)", command=self.undo_last).grid(
             row=0, column=3, padx=(0, 6), sticky="ew"
         )
+        ttk.Button(btn_frame, text="Reset (R)", command=self._reset_crop).grid(
+            row=0, column=4, padx=(0, 6), sticky="ew"
+        )
+        ttk.Button(btn_frame, text="Abrir Pasta", command=self._choose_directory).grid(
+            row=0, column=5, padx=(0, 6), sticky="ew"
+        )
         ttk.Button(btn_frame, text="Sair (Esc)", command=self.root.destroy).grid(
-            row=0, column=4, sticky="ew"
+            row=0, column=6, sticky="ew"
         )
 
         # Status
@@ -490,6 +544,8 @@ class LabelerApp:
     # ── Navegação ────────────────────────────────────────────────
 
     def _on_select(self, index: int):
+        if hasattr(self, '_history') and self.current_index != index:
+            self._history.append(self.current_index)
         self.current_index = index
         path = self.image_paths[index]
         self.lbl_title.config(text=f"Original: {path.name}")
@@ -539,13 +595,17 @@ class LabelerApp:
         path = self.image_paths[self.current_index]
         x1, y1, x2, y2 = self.canvas.get_crop()
 
+        self._accepted_sources[self.current_index] = Path(path)
+
         try:
             self._save_pair(path, x1, y1, x2, y2)
         except OSError as e:
+            del self._accepted_sources[self.current_index]
             messagebox.showerror("Erro ao salvar", str(e), parent=self.root)
             return
 
         self.accepted.add(self.current_index)
+        self._undo_stack.append(self.current_index)
         self.file_list.mark_accepted(self.current_index)
         log.info(f"Aceita: {path.name} crop=({x1},{y1})-({x2},{y2})")
         self._update_status()
@@ -554,6 +614,49 @@ class LabelerApp:
     def skip_current(self):
         self._advance()
 
+    def go_back(self):
+        if not self._history:
+            return
+        prev = self._history.pop()
+        self.file_list.select_index(prev)
+
+    def undo_last(self):
+        if not self._undo_stack:
+            return
+        idx = self._undo_stack.pop()
+        if idx not in self.accepted:
+            return
+
+        source_path = self._accepted_sources.get(idx)
+        if source_path is None:
+            log.error(f"Sem caminho de origem para desfazer índice {idx}")
+            return
+
+        orig_name = source_path.name
+        dataset = self.project_root / "dataset"
+        origin_file = dataset / "origin" / orig_name
+        crop_name = f"{source_path.stem}_editado.jpg"
+        cropped_file = dataset / "cropped" / crop_name
+
+        try:
+            if origin_file.exists():
+                shutil.move(str(origin_file), str(source_path))
+                log.info(f"Desfazer: restaurada {orig_name} para {source_path.parent}")
+            if cropped_file.exists():
+                cropped_file.unlink()
+                log.info(f"Desfazer: removida versão recortada {crop_name}")
+        except OSError as e:
+            messagebox.showerror("Erro ao desfazer", str(e), parent=self.root)
+            return
+
+        self.accepted.discard(idx)
+        del self._accepted_sources[idx]
+        self.file_list.unmark_accepted(idx)
+        self.image_paths[idx] = source_path
+        self._predictions.pop(idx, None)
+        self._update_status()
+        self.file_list.select_index(idx)
+
     def _save_pair(self, orig_path: Path, x1: int, y1: int, x2: int, y2: int):
         dataset = self.project_root / "dataset"
         origin_dir = dataset / "origin"
@@ -561,11 +664,11 @@ class LabelerApp:
         origin_dir.mkdir(parents=True, exist_ok=True)
         cropped_dir.mkdir(parents=True, exist_ok=True)
 
-        # Copiar original
+        # Mover original
         dest_orig = origin_dir / orig_path.name
         if dest_orig.exists():
             log.warning(f"Substituindo {dest_orig} já existente")
-        shutil.copy2(orig_path, dest_orig)
+        shutil.move(orig_path, dest_orig)
 
         # Recortar e salvar
         cropped = self._pil_img.crop((x1, y1, x2, y2))
@@ -609,15 +712,27 @@ class LabelerApp:
         )
         if not chosen:
             return
-        new_paths = _scan_images(Path(chosen))
+        new_folder = Path(chosen)
+        removed = _purge_already_in_dataset(new_folder)
+        new_paths = _scan_images(new_folder)
         if not new_paths:
-            messagebox.showinfo(
-                "Sem imagens", "Nenhuma imagem encontrada.", parent=self.root
-            )
+            msg = "Nenhuma imagem encontrada."
+            if removed:
+                msg = f"{removed} imagens já no dataset foram removidas. Nenhuma nova restante."
+            messagebox.showinfo("Sem imagens", msg, parent=self.root)
             return
+        if removed:
+            messagebox.showinfo(
+                "Limpeza",
+                f"{removed} imagens já no dataset foram removidas da pasta.",
+                parent=self.root,
+            )
         self.image_paths = new_paths
         self.accepted.clear()
         self._predictions.clear()
+        self._history.clear()
+        self._accepted_sources.clear()
+        self._undo_stack.clear()
         self.current_index = 0
         self._pil_img = None
         self.root.title(f"Rotulagem Assistida - {chosen}")
@@ -637,12 +752,18 @@ def main():
         return
 
     folder = Path(chosen)
+    removed = _purge_already_in_dataset(folder)
     image_paths = _scan_images(folder)
     if not image_paths:
-        messagebox.showinfo("Sem imagens", "Nenhuma imagem encontrada na pasta.")
+        msg = "Nenhuma imagem encontrada na pasta."
+        if removed:
+            msg = f"{removed} imagens já estavam no dataset e foram removidas. Nenhuma nova restante."
+        messagebox.showinfo("Sem imagens", msg)
         root.destroy()
         return
 
+    if removed:
+        log.info(f"{removed} imagens já no dataset removidas da pasta")
     log.info(f"Pasta selecionada: {folder} ({len(image_paths)} imagens)")
 
     try:

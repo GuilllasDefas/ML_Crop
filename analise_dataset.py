@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import cv2
 import matplotlib
 import matplotlib.pyplot as plt
+from PIL import Image as PILImage
 import numpy as np
 
 matplotlib.use("Agg")
@@ -221,19 +222,42 @@ def resolve_pairs(
     records: List[Optional[PairRecord]] = [None] * len(planned_pairs)
     to_compute: List[Tuple[int, str, Path, Path]] = []
 
+    total_pairs = len(planned_pairs)
+    log.info("Lendo dimensoes de %d pares...", total_pairs)
+
+    def _read_dimensions(path: Path) -> Optional[Tuple[int, int]]:
+        try:
+            with PILImage.open(path) as img:
+                return img.size  # (width, height)
+        except Exception:
+            return None
+
+    # Ler dimensoes em paralelo (somente cabecalho, sem decodificar pixels)
+    dim_results: List[Optional[Tuple[int, int]]] = [None] * total_pairs
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(_read_dimensions, planned_pairs[idx][1]): idx
+            for idx in range(total_pairs)
+        }
+        for future in futures:
+            idx = futures[future]
+            dim_results[idx] = future.result()
+
     for idx, (key, orig, crop) in enumerate(planned_pairs):
-        cache_key = (str(orig), str(crop))
-        bbox = cache_map.get(cache_key)
-        img = cv2.imread(str(orig))
-        if img is None:
+        dims = dim_results[idx]
+        if dims is None:
             log.warning("Nao foi possivel ler imagem original: %s", orig)
             continue
-        h, w = img.shape[:2]
+        w, h = dims
 
+        cache_key = (str(orig), str(crop))
+        bbox = cache_map.get(cache_key)
         if bbox is not None:
             records[idx] = PairRecord(key=key, orig_path=orig, crop_path=crop, width=w, height=h, bbox=bbox)
         else:
             to_compute.append((idx, key, orig, crop))
+
+    log.info("  Leitura concluida: %d pares processados", total_pairs)
 
     if to_compute:
         log.info("Calculando %d bboxes fora do cache...", len(to_compute))
@@ -245,10 +269,10 @@ def resolve_pairs(
             for future in futures:
                 idx, key, orig, crop = futures[future]
                 bbox = future.result()
-                img = cv2.imread(str(orig))
-                if img is None:
+                dims = _read_dimensions(orig)
+                if dims is None:
                     continue
-                h, w = img.shape[:2]
+                w, h = dims
                 records[idx] = PairRecord(key=key, orig_path=orig, crop_path=crop, width=w, height=h, bbox=bbox)
 
     valid_records = [r for r in records if r is not None]

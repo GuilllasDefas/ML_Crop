@@ -43,6 +43,7 @@ def _setup_logging() -> logging.Logger:
 log: logging.Logger = logging.getLogger("train")
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+log.info(f"Usando dispositivo: {DEVICE}")
 
 # ============ DATASET OTIMIZADO (CARREGAMENTO SOB DEMANDA) ============
 class CropDataset(Dataset):
@@ -320,7 +321,7 @@ def train():
     
     # Dataloaders otimizados
     train_loader = DataLoader(
-        train_dataset, batch_size=BATCH_SIZE, shuffle=True,
+        train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True,
         num_workers=NUM_WORKERS, pin_memory=True, prefetch_factor=2, persistent_workers=True
     )
     val_loader = DataLoader(

@@ -9,3 +9,9 @@
 2026-03-18 14:03:52 - Epoch 83: Train Loss=0.016448 | Val Loss=0.028003 | Val IoU=0.952937 | Margin Err=0.012408
 2026-03-18 20:13:11 - Epoch 53: Train Loss=0.021259 | Val Loss=0.022996 | Val IoU=0.961262 | Margin Err=0.010116
 2026-03-18 21:27:49 - Epoch 100: Train Loss=0.015798 | Val Loss=0.028968 | Val IoU=0.951463 | Margin Err=0.012957
+2026-03-18 23:19:26 - Epoch 56: Train Loss=0.020522 | Val Loss=0.029094 | Val IoU=0.951325 | Margin Err=0.013072
+2026-03-19 01:25:37 - Epoch 77: Train Loss=0.019403 | Val Loss=0.025634 | Val IoU=0.956865 | Margin Err=0.011316
+2026-03-19 21:05:49 - Epoch 83: Train Loss=0.019211 | Val Loss=0.025139 | Val IoU=0.957685 | Margin Err=0.011087
+2026-03-19 22:28:45 - Epoch 59: Train Loss=0.022638 | Val Loss=0.026553 | Val IoU=0.955388 | Margin Err=0.011779
+2026-03-20 14:21:15 - Epoch 98: Train Loss=0.017127 | Val Loss=0.024364 | Val IoU=0.958941 | Margin Err=0.010704
+2026-03-20 20:08:21 - Epoch 93: Train Loss=0.019029 | Val Loss=0.025185 | Val IoU=0.957586 | Margin Err=0.011089

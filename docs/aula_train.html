@@ -1,0 +1,1104 @@
+<!DOCTYPE html><html><head>
+      <title>aula_train</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///c:\Users\Guilherme\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.8.21\crossnote\dependencies\katex\katex.min.css">
+      
+      
+      
+      
+      
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}pre[data-line]{position:relative;padding:1em 0 1em 3em}pre[data-line] .line-highlight-wrapper{position:absolute;top:0;left:0;background-color:transparent;display:block;width:100%}pre[data-line] .line-highlight{position:absolute;left:0;right:0;padding:inherit 0;margin-top:1em;background:hsla(24,20%,50%,.08);background:linear-gradient(to right,hsla(24,20%,50%,.1) 70%,hsla(24,20%,50%,0));pointer-events:none;line-height:inherit;white-space:pre}pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center!important}.markdown-preview:not([data-for=preview]) .code-chunk .code-chunk-btn-group{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .status{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}@media print{html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,.66);border:4px solid rgba(150,150,150,.66);background-clip:content-box}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div,html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% - 300px);padding:2em calc(50% - 457px - 300px / 2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+      <script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    // your code here
+  });
+</script>
+    </head>
+    <body for="html-export">
+      <div class="crossnote markdown-preview  ">
+      
+<h1 id="aula-completa-trainpy--treinamento-do-modelo-de-crop-inteligente">Aula Completa: <code>train.py</code> — Treinamento do Modelo de Crop Inteligente </h1>
+<blockquote>
+<p><strong>Objetivo do script:</strong> Treinar uma rede neural que, dada uma imagem original, aprende a prever <strong>onde recortar</strong> (as coordenadas do crop ideal), reproduzindo o padrão de recortes que foram feitos manualmente por um humano.</p>
+</blockquote>
+<hr>
+<h2 id="sumário">Sumário </h2>
+<ol>
+<li><a href="#1-vis%C3%A3o-geral-do-problema">Visão Geral do Problema</a></li>
+<li><a href="#2-imports--o-que-cada-biblioteca-faz">Imports — O que cada biblioteca faz</a></li>
+<li><a href="#3-sistema-de-logging">Sistema de Logging</a></li>
+<li><a href="#4-dispositivo-de-execu%C3%A7%C3%A3o-cpu-vs-gpu">Dispositivo de Execução (CPU vs GPU)</a></li>
+<li><a href="#5-cropdataset--o-dataset-customizado">CropDataset — O Dataset Customizado</a></li>
+<li><a href="#6-c%C3%A1lculo-de-bounding-boxes-template-matching">Cálculo de Bounding Boxes (Template Matching)</a></li>
+<li><a href="#7-cache-de-bounding-boxes">Cache de Bounding Boxes</a></li>
+<li><a href="#8-marginawarecropmodel--a-arquitetura-do-modelo">MarginAwareCropModel — A Arquitetura do Modelo</a></li>
+<li><a href="#9-fun%C3%A7%C3%B5es-de-loss-perda">Funções de Loss (Perda)</a></li>
+<li><a href="#10-fun%C3%A7%C3%A3o-train--o-loop-de-treinamento">Função <code>train()</code> — O Loop de Treinamento</a></li>
+<li><a href="#11-ponto-de-entrada-__main__">Ponto de Entrada (<code>__main__</code>)</a></li>
+<li><a href="#12-gloss%C3%A1rio-de-conceitos">Glossário de Conceitos</a></li>
+</ol>
+<hr>
+<h2 id="1-visão-geral-do-problema">1. Visão Geral do Problema </h2>
+<h3 id="o-que-este-projeto-resolve">O que este projeto resolve? </h3>
+<p>Imagine que você tem <strong>milhares de imagens</strong> e precisa recortá-las sempre no mesmo estilo — por exemplo, centralizar um produto, remover bordas desnecessárias, ou enquadrar um rosto. Fazer isso manualmente é inviável.</p>
+<p>A ideia é:</p>
+<ol>
+<li>Você recorta <strong>algumas dezenas/centenas de imagens</strong> manualmente (criando pares: original + recortada).</li>
+<li>O modelo <strong>aprende o padrão</strong> desses recortes.</li>
+<li>Depois, ele recorta <strong>novas imagens automaticamente</strong>, imitando seu estilo.</li>
+</ol>
+<h3 id="como-o-modelo-aprende-onde-recortar">Como o modelo "aprende" onde recortar? </h3>
+<p>O modelo recebe uma imagem original e precisa prever <strong>4 números</strong>:</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>[x1, y1, x2, y2]
+</code></pre><p>Esses 4 números definem um retângulo (bounding box) dentro da imagem:</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>(0,0) ─────────────────────── (1,0)
+  │                              │
+  │    (x1,y1)──────────┐       │
+  │      │   CONTEÚDO   │       │
+  │      │   DO CROP    │       │
+  │      └──────────(x2,y2)     │
+  │                              │
+(0,1) ─────────────────────── (1,1)
+</code></pre><ul>
+<li><strong>(x1, y1)</strong> = canto superior esquerdo do recorte</li>
+<li><strong>(x2, y2)</strong> = canto inferior direito do recorte</li>
+<li>Todos os valores estão <strong>normalizados entre 0 e 1</strong> (proporção da imagem, não pixels)</li>
+</ul>
+<p><strong>Exemplo concreto:</strong> Se uma imagem tem 1000x800 pixels e o modelo prevê <code>[0.10, 0.05, 0.90, 0.95]</code>, isso significa recortar:</p>
+<ul>
+<li>De <code>x = 100px</code> até <code>x = 900px</code> (largura)</li>
+<li>De <code>y = 40px</code> até <code>y = 760px</code> (altura)</li>
+</ul>
+<hr>
+<h2 id="2-imports--o-que-cada-biblioteca-faz">2. Imports — O que cada biblioteca faz </h2>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-import">import</span> logging          <span class="token comment"># Sistema de logs (substituindo print)</span>
+<span class="token keyword keyword-import">import</span> os               <span class="token comment"># Operações de sistema de arquivos</span>
+<span class="token keyword keyword-import">import</span> time             <span class="token comment"># Medir tempo de execução</span>
+<span class="token keyword keyword-import">import</span> datetime         <span class="token comment"># Gerar timestamps para nomes de arquivos</span>
+<span class="token keyword keyword-import">import</span> cv2              <span class="token comment"># OpenCV — leitura e processamento de imagens</span>
+<span class="token keyword keyword-import">import</span> numpy <span class="token keyword keyword-as">as</span> np      <span class="token comment"># Operações numéricas com arrays</span>
+<span class="token keyword keyword-import">import</span> torch            <span class="token comment"># Framework de deep learning (núcleo)</span>
+<span class="token keyword keyword-import">import</span> torch<span class="token punctuation">.</span>nn <span class="token keyword keyword-as">as</span> nn   <span class="token comment"># Módulos de redes neurais (camadas, ativações)</span>
+<span class="token keyword keyword-import">import</span> torch<span class="token punctuation">.</span>optim <span class="token keyword keyword-as">as</span> optim  <span class="token comment"># Otimizadores (AdamW, SGD, etc.)</span>
+<span class="token keyword keyword-from">from</span> concurrent<span class="token punctuation">.</span>futures <span class="token keyword keyword-import">import</span> ThreadPoolExecutor  <span class="token comment"># Paralelismo com threads</span>
+<span class="token keyword keyword-from">from</span> torch<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>data <span class="token keyword keyword-import">import</span> Dataset<span class="token punctuation">,</span> DataLoader   <span class="token comment"># Estruturas para alimentar dados ao modelo</span>
+<span class="token keyword keyword-from">from</span> torchvision <span class="token keyword keyword-import">import</span> models<span class="token punctuation">,</span> transforms          <span class="token comment"># Modelos pré-treinados e transformações de imagem</span>
+<span class="token keyword keyword-from">from</span> sklearn<span class="token punctuation">.</span>model_selection <span class="token keyword keyword-import">import</span> train_test_split <span class="token comment"># Dividir dados em treino/validação</span>
+<span class="token keyword keyword-from">from</span> tqdm <span class="token keyword keyword-import">import</span> tqdm   <span class="token comment"># Barras de progresso no terminal</span>
+</code></pre><h3 id="por-que-cada-uma">Por que cada uma? </h3>
+<table>
+<thead>
+<tr>
+<th>Biblioteca</th>
+<th>Papel neste script</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>logging</code></td>
+<td>Todo output vai para arquivo <code>.log</code> E terminal simultaneamente. Nunca usamos <code>print()</code>.</td>
+</tr>
+<tr>
+<td><code>cv2</code> (OpenCV)</td>
+<td>Lê imagens do disco, converte cores (BGR→RGB), redimensiona, e faz template matching.</td>
+</tr>
+<tr>
+<td><code>numpy</code></td>
+<td>Manipula arrays de bounding boxes (os 4 números do crop) de forma eficiente.</td>
+</tr>
+<tr>
+<td><code>torch</code></td>
+<td>O coração: define tensores, roda operações na GPU, calcula gradientes automaticamente.</td>
+</tr>
+<tr>
+<td><code>torch.nn</code></td>
+<td>Define as camadas da rede neural (Linear, Dropout, BatchNorm, etc.).</td>
+</tr>
+<tr>
+<td><code>torch.optim</code></td>
+<td>Contém o otimizador (AdamW) que ajusta os pesos da rede durante o treino.</td>
+</tr>
+<tr>
+<td><code>ThreadPoolExecutor</code></td>
+<td>Calcula bounding boxes em paralelo usando múltiplas threads (I/O bound).</td>
+</tr>
+<tr>
+<td><code>Dataset</code> / <code>DataLoader</code></td>
+<td>Abstração do PyTorch para carregar dados em batches, com shuffle e paralelismo.</td>
+</tr>
+<tr>
+<td><code>torchvision.models</code></td>
+<td>Fornece a EfficientNet-B0 pré-treinada no ImageNet.</td>
+</tr>
+<tr>
+<td><code>torchvision.transforms</code></td>
+<td>Normaliza imagens para o formato que a EfficientNet espera.</td>
+</tr>
+<tr>
+<td><code>train_test_split</code></td>
+<td>Divide os dados aleatoriamente em 90% treino + 10% validação.</td>
+</tr>
+<tr>
+<td><code>tqdm</code></td>
+<td>Mostra barras de progresso para acompanhar loops longos.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-sistema-de-logging">3. Sistema de Logging </h2>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-def">def</span> <span class="token function">_setup_logging</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> logging<span class="token punctuation">.</span>Logger<span class="token punctuation">:</span>
+    os<span class="token punctuation">.</span>makedirs<span class="token punctuation">(</span><span class="token string">"logs"</span><span class="token punctuation">,</span> exist_ok<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+    script_name <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>splitext<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>basename<span class="token punctuation">(</span>__file__<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+    timestamp <span class="token operator">=</span> datetime<span class="token punctuation">.</span>datetime<span class="token punctuation">.</span>now<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>strftime<span class="token punctuation">(</span><span class="token string">"%Y-%m-%d_%H-%M-%S"</span><span class="token punctuation">)</span>
+    log_filename <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token string">"logs"</span><span class="token punctuation">,</span> <span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">{</span>script_name<span class="token punctuation">}</span></span><span class="token string">_</span><span class="token interpolation"><span class="token punctuation">{</span>timestamp<span class="token punctuation">}</span></span><span class="token string">.log"</span></span><span class="token punctuation">)</span>
+    fmt <span class="token operator">=</span> logging<span class="token punctuation">.</span>Formatter<span class="token punctuation">(</span>
+        <span class="token string">"%(asctime)s [%(levelname)s] %(message)s"</span><span class="token punctuation">,</span>
+        datefmt<span class="token operator">=</span><span class="token string">"%Y-%m-%d %H:%M:%S"</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span>
+    logger <span class="token operator">=</span> logging<span class="token punctuation">.</span>getLogger<span class="token punctuation">(</span><span class="token string">"train"</span><span class="token punctuation">)</span>
+    <span class="token keyword keyword-if">if</span> logger<span class="token punctuation">.</span>handlers<span class="token punctuation">:</span>
+        <span class="token keyword keyword-return">return</span> logger
+    logger<span class="token punctuation">.</span>setLevel<span class="token punctuation">(</span>logging<span class="token punctuation">.</span>DEBUG<span class="token punctuation">)</span>
+    sh <span class="token operator">=</span> logging<span class="token punctuation">.</span>StreamHandler<span class="token punctuation">(</span><span class="token punctuation">)</span>     <span class="token comment"># → Terminal</span>
+    sh<span class="token punctuation">.</span>setLevel<span class="token punctuation">(</span>logging<span class="token punctuation">.</span>INFO<span class="token punctuation">)</span>
+    sh<span class="token punctuation">.</span>setFormatter<span class="token punctuation">(</span>fmt<span class="token punctuation">)</span>
+    fh <span class="token operator">=</span> logging<span class="token punctuation">.</span>FileHandler<span class="token punctuation">(</span>log_filename<span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">"utf-8"</span><span class="token punctuation">)</span>  <span class="token comment"># → Arquivo</span>
+    fh<span class="token punctuation">.</span>setLevel<span class="token punctuation">(</span>logging<span class="token punctuation">.</span>DEBUG<span class="token punctuation">)</span>
+    fh<span class="token punctuation">.</span>setFormatter<span class="token punctuation">(</span>fmt<span class="token punctuation">)</span>
+    logger<span class="token punctuation">.</span>addHandler<span class="token punctuation">(</span>sh<span class="token punctuation">)</span>
+    logger<span class="token punctuation">.</span>addHandler<span class="token punctuation">(</span>fh<span class="token punctuation">)</span>
+    logging<span class="token punctuation">.</span>captureWarnings<span class="token punctuation">(</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+    <span class="token keyword keyword-return">return</span> logger
+</code></pre><h3 id="o-que-acontece-aqui-passo-a-passo">O que acontece aqui, passo a passo: </h3>
+<ol>
+<li><strong>Cria a pasta <code>logs/</code></strong> se ela não existir.</li>
+<li><strong>Gera um nome de arquivo único</strong> baseado no nome do script + data/hora (ex: <code>train_2026-03-21_14-30-00.log</code>). Isso evita sobrescrever logs anteriores.</li>
+<li><strong>Define o formato</strong> das mensagens: <code>2026-03-21 14:30:00 [INFO] Mensagem aqui</code>.</li>
+<li><strong>Cria dois "destinos"</strong> para os logs:
+<ul>
+<li><strong>StreamHandler (sh):</strong> Mostra mensagens de nível <code>INFO</code> ou superior no terminal.</li>
+<li><strong>FileHandler (fh):</strong> Grava <strong>tudo</strong> (inclusive <code>DEBUG</code>) no arquivo <code>.log</code>.</li>
+</ul>
+</li>
+<li><strong><code>if logger.handlers: return logger</code></strong> — Evita duplicar handlers se a função for chamada mais de uma vez.</li>
+<li><strong><code>logging.captureWarnings(True)</code></strong> — Captura warnings do Python (ex: DeprecationWarning) e os redireciona para o sistema de logging.</li>
+</ol>
+<h3 id="por-que-dois-níveis-diferentes">Por que dois níveis diferentes? </h3>
+<ul>
+<li>No <strong>terminal</strong>, você quer ver apenas o essencial (progresso, erros). Nível <code>INFO</code>.</li>
+<li>No <strong>arquivo</strong>, você quer <strong>tudo</strong> para poder investigar problemas depois. Nível <code>DEBUG</code>.</li>
+</ul>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>log<span class="token punctuation">:</span> logging<span class="token punctuation">.</span>Logger <span class="token operator">=</span> logging<span class="token punctuation">.</span>getLogger<span class="token punctuation">(</span><span class="token string">"train"</span><span class="token punctuation">)</span>
+</code></pre><p>Essa linha cria uma referência global ao logger. Note que <code>_setup_logging()</code> só é chamada no <code>if __name__ == "__main__"</code>, mas o <code>log</code> já fica disponível para uso em todo o módulo — ele está "vazio" (sem handlers) até <code>_setup_logging()</code> configurá-lo.</p>
+<hr>
+<h2 id="4-dispositivo-de-execução-cpu-vs-gpu">4. Dispositivo de Execução (CPU vs GPU) </h2>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>DEVICE <span class="token operator">=</span> torch<span class="token punctuation">.</span>device<span class="token punctuation">(</span><span class="token string">'cuda'</span> <span class="token keyword keyword-if">if</span> torch<span class="token punctuation">.</span>cuda<span class="token punctuation">.</span>is_available<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword keyword-else">else</span> <span class="token string">'cpu'</span><span class="token punctuation">)</span>
+</code></pre><h3 id="o-que-é-cuda">O que é CUDA? </h3>
+<p>CUDA é a tecnologia da NVIDIA que permite usar a GPU para cálculos. GPUs são <strong>ordens de magnitude mais rápidas</strong> que CPUs para operações de deep learning, porque processam milhares de operações em paralelo.</p>
+<ul>
+<li><strong><code>torch.cuda.is_available()</code></strong> verifica se existe uma GPU NVIDIA com drivers CUDA instalados.</li>
+<li>Se sim → usa <code>cuda</code> (GPU). Se não → usa <code>cpu</code>.</li>
+</ul>
+<p>Treinar na CPU é possível mas <strong>muito mais lento</strong> (pode ser 10-50x mais devagar dependendo do modelo).</p>
+<hr>
+<h2 id="5-cropdataset--o-dataset-customizado">5. CropDataset — O Dataset Customizado </h2>
+<h3 id="o-que-é-um-dataset-no-pytorch">O que é um Dataset no PyTorch? </h3>
+<p>O PyTorch exige que seus dados implementem a interface <code>Dataset</code>, que tem apenas dois métodos obrigatórios:</p>
+<ul>
+<li><code>__len__()</code> — quantos exemplos existem</li>
+<li><code>__getitem__(idx)</code> — retorna o exemplo na posição <code>idx</code></li>
+</ul>
+<p>O DataLoader usa esses métodos para montar batches automaticamente.</p>
+<h3>Construtor (<code>__init__</code>) {#construtor-<strong>init</strong> }</h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-class">class</span> <span class="token class-name">CropDataset</span><span class="token punctuation">(</span>Dataset<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword keyword-def">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> original_paths<span class="token punctuation">,</span> cropped_paths<span class="token punctuation">,</span> bbox_data<span class="token punctuation">,</span> img_size<span class="token operator">=</span><span class="token number">300</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        self<span class="token punctuation">.</span>img_size <span class="token operator">=</span> img_size
+        self<span class="token punctuation">.</span>pairs <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        
+        <span class="token keyword keyword-for">for</span> orig_path<span class="token punctuation">,</span> crop_path<span class="token punctuation">,</span> bbox_norm <span class="token keyword keyword-in">in</span> <span class="token builtin">zip</span><span class="token punctuation">(</span>original_paths<span class="token punctuation">,</span> cropped_paths<span class="token punctuation">,</span> bbox_data<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword keyword-try">try</span><span class="token punctuation">:</span>
+                self<span class="token punctuation">.</span>pairs<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span>
+                    <span class="token string">'orig_path'</span><span class="token punctuation">:</span> orig_path<span class="token punctuation">,</span>
+                    <span class="token string">'crop_path'</span><span class="token punctuation">:</span> crop_path<span class="token punctuation">,</span>
+                    <span class="token string">'bbox'</span><span class="token punctuation">:</span> bbox_norm<span class="token punctuation">.</span>astype<span class="token punctuation">(</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+            <span class="token keyword keyword-except">except</span> Exception <span class="token keyword keyword-as">as</span> e<span class="token punctuation">:</span>
+                log<span class="token punctuation">.</span>error<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"Erro ao processar </span><span class="token interpolation"><span class="token punctuation">{</span>orig_path<span class="token punctuation">}</span></span><span class="token string">: </span><span class="token interpolation"><span class="token punctuation">{</span>e<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+                <span class="token keyword keyword-continue">continue</span>
+</code></pre><p><strong>O que acontece:</strong></p>
+<ol>
+<li>Recebe três listas paralelas: caminhos das originais, caminhos dos crops, e os bounding boxes já calculados.</li>
+<li><strong>Não carrega nenhuma imagem na memória</strong> — apenas armazena os caminhos. Isso é o "carregamento sob demanda" (lazy loading).</li>
+<li>Para cada trio, cria um dicionário com o caminho e o bbox, e guarda na lista <code>self.pairs</code>.</li>
+<li>Se qualquer erro ocorrer (ex: path inválido), loga o erro e pula para o próximo.</li>
+</ol>
+<h3 id="por-que-lazy-loading">Por que lazy loading? </h3>
+<p>Se o dataset tiver 10.000 imagens de 5MB cada, carregar tudo na RAM consumiria <strong>50GB</strong>. Com lazy loading, cada imagem é lida do disco <strong>apenas quando o DataLoader a solicita</strong>, e descartada depois. Isso troca velocidade por memória.</p>
+<h3><code>__getitem__</code> — O coração do Dataset {#<strong>getitem</strong>--o-coração-do-dataset }</h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-def">def</span> <span class="token function">__getitem__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> idx<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    pair <span class="token operator">=</span> self<span class="token punctuation">.</span>pairs<span class="token punctuation">[</span>idx<span class="token punctuation">]</span>
+    
+    <span class="token comment"># Carregar imagem original somente quando necessário</span>
+    orig <span class="token operator">=</span> cv2<span class="token punctuation">.</span>imread<span class="token punctuation">(</span>pair<span class="token punctuation">[</span><span class="token string">'orig_path'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token keyword keyword-if">if</span> orig <span class="token keyword keyword-is">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+        dummy_img <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>img_size<span class="token punctuation">,</span> self<span class="token punctuation">.</span>img_size<span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+        dummy_bbox <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0.05</span><span class="token punctuation">,</span> <span class="token number">0.05</span><span class="token punctuation">,</span> <span class="token number">0.95</span><span class="token punctuation">,</span> <span class="token number">0.95</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+        <span class="token keyword keyword-return">return</span> dummy_img<span class="token punctuation">,</span> dummy_bbox
+    
+    <span class="token comment"># BGR → RGB</span>
+    orig_rgb <span class="token operator">=</span> cv2<span class="token punctuation">.</span>cvtColor<span class="token punctuation">(</span>orig<span class="token punctuation">,</span> cv2<span class="token punctuation">.</span>COLOR_BGR2RGB<span class="token punctuation">)</span>
+    <span class="token comment"># Redimensionar para tamanho fixo</span>
+    orig_resized <span class="token operator">=</span> cv2<span class="token punctuation">.</span>resize<span class="token punctuation">(</span>orig_rgb<span class="token punctuation">,</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>img_size<span class="token punctuation">,</span> self<span class="token punctuation">.</span>img_size<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token comment"># Converter para tensor PyTorch</span>
+    orig_tensor <span class="token operator">=</span> transforms<span class="token punctuation">.</span>ToTensor<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">(</span>orig_resized<span class="token punctuation">)</span>
+    <span class="token comment"># Normalizar com médias do ImageNet</span>
+    orig_tensor <span class="token operator">=</span> transforms<span class="token punctuation">.</span>Normalize<span class="token punctuation">(</span>
+        mean<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">0.485</span><span class="token punctuation">,</span> <span class="token number">0.456</span><span class="token punctuation">,</span> <span class="token number">0.406</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        std<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">0.229</span><span class="token punctuation">,</span> <span class="token number">0.224</span><span class="token punctuation">,</span> <span class="token number">0.225</span><span class="token punctuation">]</span>
+    <span class="token punctuation">)</span><span class="token punctuation">(</span>orig_tensor<span class="token punctuation">)</span>
+    
+    <span class="token keyword keyword-return">return</span> orig_tensor<span class="token punctuation">,</span> pair<span class="token punctuation">[</span><span class="token string">'bbox'</span><span class="token punctuation">]</span>
+</code></pre><p><strong>Pipeline de processamento da imagem, passo a passo:</strong></p>
+<h4 id="passo-1-leitura-com-opencv">Passo 1: Leitura com OpenCV </h4>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>orig <span class="token operator">=</span> cv2<span class="token punctuation">.</span>imread<span class="token punctuation">(</span>pair<span class="token punctuation">[</span><span class="token string">'orig_path'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre><p>O OpenCV lê a imagem do disco como um array NumPy com shape <code>(altura, largura, 3)</code>. Os 3 canais são <strong>BGR</strong> (Azul, Verde, Vermelho) — diferente do padrão RGB.</p>
+<h4 id="passo-2-fallback-de-segurança">Passo 2: Fallback de segurança </h4>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-if">if</span> orig <span class="token keyword keyword-is">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+    dummy_img <span class="token operator">=</span> torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> self<span class="token punctuation">.</span>img_size<span class="token punctuation">,</span> self<span class="token punctuation">.</span>img_size<span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+    dummy_bbox <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0.05</span><span class="token punctuation">,</span> <span class="token number">0.05</span><span class="token punctuation">,</span> <span class="token number">0.95</span><span class="token punctuation">,</span> <span class="token number">0.95</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+    <span class="token keyword keyword-return">return</span> dummy_img<span class="token punctuation">,</span> dummy_bbox
+</code></pre><p>Se a imagem não puder ser lida (arquivo corrompido, path errado), retorna uma imagem preta com um bbox padrão (crop quase total) para não travar o treinamento.</p>
+<h4 id="passo-3-conversão-bgr--rgb">Passo 3: Conversão BGR → RGB </h4>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>orig_rgb <span class="token operator">=</span> cv2<span class="token punctuation">.</span>cvtColor<span class="token punctuation">(</span>orig<span class="token punctuation">,</span> cv2<span class="token punctuation">.</span>COLOR_BGR2RGB<span class="token punctuation">)</span>
+</code></pre><p>A EfficientNet foi treinada com imagens RGB. Se enviarmos BGR, as cores estariam invertidas e o modelo não funcionaria bem.</p>
+<h4 id="passo-4-redimensionamento">Passo 4: Redimensionamento </h4>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>orig_resized <span class="token operator">=</span> cv2<span class="token punctuation">.</span>resize<span class="token punctuation">(</span>orig_rgb<span class="token punctuation">,</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span>img_size<span class="token punctuation">,</span> self<span class="token punctuation">.</span>img_size<span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre><p>Todas as imagens precisam ter <strong>o mesmo tamanho</strong> para formar batches. A rede espera <code>360x360</code> neste projeto. Imagens originais de qualquer resolução são redimensionadas para esse tamanho fixo.</p>
+<blockquote>
+<p><strong>Nota:</strong> Isso pode distorcer a proporção (aspect ratio) da imagem. Porém, como os bounding boxes também estão normalizados (0-1), a distorção não afeta a correspondência entre imagem e bbox.</p>
+</blockquote>
+<h4 id="passo-5-conversão-para-tensor">Passo 5: Conversão para Tensor </h4>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>orig_tensor <span class="token operator">=</span> transforms<span class="token punctuation">.</span>ToTensor<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">(</span>orig_resized<span class="token punctuation">)</span>
+</code></pre><p><code>ToTensor()</code> faz duas coisas:</p>
+<ol>
+<li>Converte o array NumPy <code>(H, W, C)</code> para tensor PyTorch <code>(C, H, W)</code> — mudança de eixos.</li>
+<li>Converte valores de <code>[0, 255]</code> (uint8) para <code>[0.0, 1.0]</code> (float32) — normalização de escala.</li>
+</ol>
+<h4 id="passo-6-normalização-imagenet">Passo 6: Normalização ImageNet </h4>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>orig_tensor <span class="token operator">=</span> transforms<span class="token punctuation">.</span>Normalize<span class="token punctuation">(</span>
+    mean<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">0.485</span><span class="token punctuation">,</span> <span class="token number">0.456</span><span class="token punctuation">,</span> <span class="token number">0.406</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    std<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">0.229</span><span class="token punctuation">,</span> <span class="token number">0.224</span><span class="token punctuation">,</span> <span class="token number">0.225</span><span class="token punctuation">]</span>
+<span class="token punctuation">)</span><span class="token punctuation">(</span>orig_tensor<span class="token punctuation">)</span>
+</code></pre><p>Esses números <strong>não são arbitrários</strong>. São a média e o desvio padrão calculados sobre <strong>todos os ~1.2 milhões de imagens</strong> do dataset ImageNet. A fórmula aplicada em cada canal é:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>pixel_normalizado</mtext><mo>=</mo><mfrac><mrow><mtext>pixel</mtext><mo>−</mo><mrow><mtext>m</mtext><mover accent="true"><mtext>e</mtext><mo>ˊ</mo></mover><mtext>dia</mtext></mrow></mrow><mrow><mtext>desvio&nbsp;padr</mtext><mover accent="true"><mtext>a</mtext><mo>˜</mo></mover><mtext>o</mtext></mrow></mfrac></mrow><annotation encoding="application/x-tex">\text{pixel\_normalizado} = \frac{\text{pixel} - \text{média}}{\text{desvio padrão}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0044em;vertical-align:-0.31em;"></span><span class="mord text"><span class="mord">pixel_normalizado</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.2519em;vertical-align:-0.8804em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3714em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">desvio&nbsp;padr</span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6679em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord">a</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.25em;"><span class="mord">˜</span></span></span></span></span></span></span><span class="mord">o</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">pixel</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord text"><span class="mord">m</span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord">e</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.25em;"><span class="mord">ˊ</span></span></span></span></span></span></span><span class="mord">dia</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p><strong>Por que normalizar?</strong> Como a EfficientNet foi pré-treinada no ImageNet com esses valores, os pesos internos da rede "esperam" receber dados nessa escala. Sem essa normalização, os features extraídos pela rede seriam ruidosos e o treinamento seria muito mais difícil.</p>
+<h4 id="retorno">Retorno </h4>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-return">return</span> orig_tensor<span class="token punctuation">,</span> pair<span class="token punctuation">[</span><span class="token string">'bbox'</span><span class="token punctuation">]</span>
+</code></pre><p>Retorna uma tupla:</p>
+<ul>
+<li><strong><code>orig_tensor</code></strong> — Tensor <code>(3, 360, 360)</code> com a imagem normalizada</li>
+<li><strong><code>pair['bbox']</code></strong> — Array <code>(4,)</code> com <code>[x1, y1, x2, y2]</code> normalizados (o "gabarito")</li>
+</ul>
+<hr>
+<h2 id="6-cálculo-de-bounding-boxes-template-matching">6. Cálculo de Bounding Boxes (Template Matching) </h2>
+<h3 id="o-problema">O problema </h3>
+<p>Temos pares de imagens: a original e a versão recortada. Precisamos descobrir <strong>exatamente onde</strong> a versão recortada se encaixa dentro da original, para criar o "gabarito" (ground truth) do treinamento.</p>
+<h3 id="a-solução-template-matching">A solução: Template Matching </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-def">def</span> <span class="token function">_compute_bbox_for_pair</span><span class="token punctuation">(</span>orig_path<span class="token punctuation">,</span> crop_path<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    orig <span class="token operator">=</span> cv2<span class="token punctuation">.</span>imread<span class="token punctuation">(</span>orig_path<span class="token punctuation">)</span>
+    crop <span class="token operator">=</span> cv2<span class="token punctuation">.</span>imread<span class="token punctuation">(</span>crop_path<span class="token punctuation">)</span>
+    <span class="token keyword keyword-if">if</span> orig <span class="token keyword keyword-is">is</span> <span class="token boolean">None</span> <span class="token keyword keyword-or">or</span> crop <span class="token keyword keyword-is">is</span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+        <span class="token keyword keyword-return">return</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0.05</span><span class="token punctuation">,</span> <span class="token number">0.05</span><span class="token punctuation">,</span> <span class="token number">0.95</span><span class="token punctuation">,</span> <span class="token number">0.95</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+
+    orig_h<span class="token punctuation">,</span> orig_w <span class="token operator">=</span> orig<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token number">2</span><span class="token punctuation">]</span>
+
+    gray_orig <span class="token operator">=</span> cv2<span class="token punctuation">.</span>cvtColor<span class="token punctuation">(</span>orig<span class="token punctuation">,</span> cv2<span class="token punctuation">.</span>COLOR_BGR2GRAY<span class="token punctuation">)</span>
+    gray_crop <span class="token operator">=</span> cv2<span class="token punctuation">.</span>cvtColor<span class="token punctuation">(</span>crop<span class="token punctuation">,</span> cv2<span class="token punctuation">.</span>COLOR_BGR2GRAY<span class="token punctuation">)</span>
+
+    result <span class="token operator">=</span> cv2<span class="token punctuation">.</span>matchTemplate<span class="token punctuation">(</span>gray_orig<span class="token punctuation">,</span> gray_crop<span class="token punctuation">,</span> cv2<span class="token punctuation">.</span>TM_CCOEFF_NORMED<span class="token punctuation">)</span>
+    _<span class="token punctuation">,</span> _<span class="token punctuation">,</span> _<span class="token punctuation">,</span> max_loc <span class="token operator">=</span> cv2<span class="token punctuation">.</span>minMaxLoc<span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+    x1<span class="token punctuation">,</span> y1 <span class="token operator">=</span> max_loc
+    x2<span class="token punctuation">,</span> y2 <span class="token operator">=</span> x1 <span class="token operator">+</span> crop<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> y1 <span class="token operator">+</span> crop<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+
+    <span class="token keyword keyword-return">return</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span>
+        x1 <span class="token operator">/</span> orig_w<span class="token punctuation">,</span> y1 <span class="token operator">/</span> orig_h<span class="token punctuation">,</span>
+        x2 <span class="token operator">/</span> orig_w<span class="token punctuation">,</span> y2 <span class="token operator">/</span> orig_h
+    <span class="token punctuation">]</span><span class="token punctuation">,</span> dtype<span class="token operator">=</span>np<span class="token punctuation">.</span>float32<span class="token punctuation">)</span>
+</code></pre><h3 id="como-o-template-matching-funciona">Como o Template Matching funciona? </h3>
+<p>Imagine que você tem um quebra-cabeça (imagem original) e uma peça (imagem recortada). O Template Matching <strong>desliza a peça sobre o quebra-cabeça</strong>, posição por posição, calculando em cada ponto <strong>o quão bem a peça se encaixa</strong>.</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Imagem Original (cinza):                      Crop (cinza):
+┌──────────────────────┐                       ┌──────┐
+│                      │                       │      │
+│      ┌──────┐        │    ← O algoritmo     │ peça │
+│      │ AQUI │        │      encontra essa    │      │
+│      │ ESTÁ │        │      posição          └──────┘
+│      └──────┘        │
+│                      │
+└──────────────────────┘
+</code></pre><p><strong>Passo a passo:</strong></p>
+<ol>
+<li><strong>Converte para escala de cinza</strong> — Template matching é mais rápido e robusto em tons de cinza.</li>
+<li><strong><code>cv2.matchTemplate(gray_orig, gray_crop, cv2.TM_CCOEFF_NORMED)</code></strong> — Desliza o crop sobre a original, gerando um "mapa de correlação". Cada pixel do mapa indica o quão bem o crop se encaixa naquela posição. O método <code>TM_CCOEFF_NORMED</code> retorna valores entre -1 e 1, onde 1 = encaixe perfeito.</li>
+<li><strong><code>cv2.minMaxLoc(result)</code></strong> — Encontra o ponto de máxima correlação. <code>max_loc</code> é a coordenada <code>(x, y)</code> do canto superior esquerdo onde o encaixe é melhor.</li>
+<li><strong>Calcula o canto inferior direito:</strong> <code>x2 = x1 + largura_do_crop</code>, <code>y2 = y1 + altura_do_crop</code>.</li>
+<li><strong>Normaliza</strong> dividindo pela largura/altura da original, resultando em valores entre 0 e 1.</li>
+</ol>
+<h3 id="exemplo-numérico">Exemplo numérico </h3>
+<ul>
+<li>Original: 1000x800 pixels</li>
+<li>Crop: 800x600 pixels</li>
+<li>Template matching encontra o crop na posição (100, 50)</li>
+</ul>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>x1 = 100 / 1000 = 0.10
+y1 = 50  / 800  = 0.0625
+x2 = (100 + 800) / 1000 = 0.90
+y2 = (50 + 600)  / 800  = 0.8125
+
+bbox = [0.10, 0.0625, 0.90, 0.8125]
+</code></pre><p>Isso significa: "o crop começa em 10% da largura, 6.25% da altura, e vai até 90% da largura, 81.25% da altura."</p>
+<hr>
+<h2 id="7-cache-de-bounding-boxes">7. Cache de Bounding Boxes </h2>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-def">def</span> <span class="token function">compute_bounding_boxes</span><span class="token punctuation">(</span>orig_paths<span class="token punctuation">,</span> crop_paths<span class="token punctuation">,</span> cache_path<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> max_workers<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+</code></pre><p>O cálculo de bounding boxes via template matching é <strong>computacionalmente caro</strong> (lê duas imagens do disco + faz correlação cruzada para cada par). Se você tem 1000 pares, isso pode levar vários minutos.</p>
+<h3 id="estratégia-de-cache">Estratégia de cache </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-if">if</span> cache_path <span class="token keyword keyword-is">is</span> <span class="token keyword keyword-not">not</span> <span class="token boolean">None</span> <span class="token keyword keyword-and">and</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>exists<span class="token punctuation">(</span>cache_path<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword keyword-with">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span>cache_path<span class="token punctuation">,</span> <span class="token string">"rb"</span><span class="token punctuation">)</span> <span class="token keyword keyword-as">as</span> f<span class="token punctuation">:</span>
+        cache <span class="token operator">=</span> pickle<span class="token punctuation">.</span>load<span class="token punctuation">(</span>f<span class="token punctuation">)</span>
+    <span class="token keyword keyword-if">if</span> cache<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"orig_paths"</span><span class="token punctuation">)</span> <span class="token operator">==</span> orig_paths <span class="token keyword keyword-and">and</span> cache<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"crop_paths"</span><span class="token punctuation">)</span> <span class="token operator">==</span> crop_paths<span class="token punctuation">:</span>
+        <span class="token keyword keyword-return">return</span> cache<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"bboxes"</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre><ol>
+<li>Se o arquivo de cache existe, carrega-o.</li>
+<li><strong>Verifica se as listas de caminhos são idênticas</strong> — se você adicionou/removeu imagens do dataset, o cache é invalidado automaticamente e tudo é recalculado.</li>
+<li>Se o cache é válido, retorna os bboxes em milissegundos ao invés de minutos.</li>
+</ol>
+<h3 id="paralelismo-com-threadpoolexecutor">Paralelismo com ThreadPoolExecutor </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-with">with</span> ThreadPoolExecutor<span class="token punctuation">(</span>max_workers<span class="token operator">=</span>max_workers<span class="token punctuation">)</span> <span class="token keyword keyword-as">as</span> executor<span class="token punctuation">:</span>
+    <span class="token keyword keyword-for">for</span> bbox <span class="token keyword keyword-in">in</span> tqdm<span class="token punctuation">(</span>executor<span class="token punctuation">.</span><span class="token builtin">map</span><span class="token punctuation">(</span>_compute_bbox_for_pair<span class="token punctuation">,</span> orig_paths<span class="token punctuation">,</span> crop_paths<span class="token punctuation">)</span><span class="token punctuation">,</span> total<span class="token operator">=</span><span class="token builtin">len</span><span class="token punctuation">(</span>orig_paths<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        bbox_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>bbox<span class="token punctuation">)</span>
+</code></pre><p>Como o template matching é <strong>I/O bound</strong> (a maior parte do tempo é gasta lendo imagens do disco), usa-se <code>ThreadPoolExecutor</code> para processar múltiplos pares simultaneamente. O <code>max_workers</code> padrão é o número de CPUs disponíveis.</p>
+<blockquote>
+<p><strong>I/O bound vs CPU bound:</strong></p>
+<ul>
+<li><strong>I/O bound</strong> = o programa espera mais por disco/rede do que por cálculos → use <strong>threads</strong>.</li>
+<li><strong>CPU bound</strong> = o programa gasta mais tempo calculando → use <strong>processos</strong> (multiprocessing).</li>
+</ul>
+</blockquote>
+<h3 id="salvamento-do-cache">Salvamento do cache </h3>
+<p>Após o cálculo, os resultados são salvos em <code>models/bbox_cache.pkl</code> usando <code>pickle</code> (serialização Python). Na próxima execução, o cache evita todo o reprocessamento.</p>
+<hr>
+<h2 id="8-marginawarecropmodel--a-arquitetura-do-modelo">8. MarginAwareCropModel — A Arquitetura do Modelo </h2>
+<h3 id="visão-geral-da-arquitetura">Visão geral da arquitetura </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Imagem 360x360x3
+       │
+       ▼
+┌─────────────────┐
+│  EfficientNet-B0 │  ← Backbone (extrator de features) pré-treinado no ImageNet
+│  (features)      │
+└────────┬────────┘
+         │  Mapa de features: (batch, 1280, 12, 12)
+         ▼
+┌─────────────────┐
+│ AdaptiveAvgPool  │  ← Compacta dimensões espaciais para (1, 1)
+│  (1, 1)          │
+└────────┬────────┘
+         │  Vetor: (batch, 1280)
+         ▼
+┌─────────────────┐
+│   Flatten        │  ← Achata para vetor 1D
+└────────┬────────┘
+         │  Vetor: (batch, 1280)
+         ▼
+┌─────────────────┐
+│   Regressor      │  ← Cabeça customizada (MLP)
+│  1280→512→128→4  │
+└────────┬────────┘
+         │  Saída: (batch, 4)
+         ▼
+┌─────────────────┐
+│    Sigmoid       │  ← Força saída entre [0, 1]
+└────────┬────────┘
+         │
+         ▼
+    [x1, y1, x2, y2]  ← Coordenadas normalizadas do crop
+</code></pre><h3 id="o-que-é-transfer-learning">O que é Transfer Learning? </h3>
+<p>A EfficientNet-B0 foi treinada no ImageNet (1.2 milhão de imagens, 1000 categorias). Ela aprendeu a reconhecer bordas, texturas, formas, objetos — conhecimento visual genérico.</p>
+<p>Em vez de treinar uma rede do zero (que exigiria centenas de milhares de imagens), <strong>reutilizamos esse conhecimento</strong>. A EfficientNet funciona como um "extrator de features visuais" e nós adicionamos apenas uma cabeça customizada (o regressor) que converte essas features em coordenadas de crop.</p>
+<h3 id="o-backbone-efficientnet-b0">O Backbone (EfficientNet-B0) </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-try">try</span><span class="token punctuation">:</span>
+    backbone <span class="token operator">=</span> models<span class="token punctuation">.</span>efficientnet_b0<span class="token punctuation">(</span>weights<span class="token operator">=</span>models<span class="token punctuation">.</span>EfficientNet_B0_Weights<span class="token punctuation">.</span>IMAGENET1K_V1<span class="token punctuation">)</span>
+<span class="token keyword keyword-except">except</span> AttributeError<span class="token punctuation">:</span>
+    backbone <span class="token operator">=</span> models<span class="token punctuation">.</span>efficientnet_b0<span class="token punctuation">(</span>pretrained<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+
+self<span class="token punctuation">.</span>features <span class="token operator">=</span> backbone<span class="token punctuation">.</span>features
+</code></pre><ul>
+<li><strong><code>models.efficientnet_b0(weights=...)</code></strong> — Carrega a EfficientNet-B0 com pesos pré-treinados do ImageNet. O <code>try/except</code> garante compatibilidade com diferentes versões do PyTorch.</li>
+<li><strong><code>self.features = backbone.features</code></strong> — Pega apenas a parte convolucional da rede (sem o classificador final). Essa parte transforma uma imagem <code>(3, 360, 360)</code> em um mapa de features <code>(1280, 12, 12)</code> — 1280 canais de informação, cada um com resolução 12x12.</li>
+</ul>
+<h3 id="por-que-efficientnet">Por que EfficientNet? </h3>
+<p>A família EfficientNet usa uma técnica chamada <strong>compound scaling</strong> que equilibra profundidade, largura e resolução da rede de forma otimizada. O resultado é um modelo que extrai features de alta qualidade com <strong>menos parâmetros e menos computação</strong> do que alternativas como ResNet ou VGG.</p>
+<table>
+<thead>
+<tr>
+<th>Modelo</th>
+<th>Parâmetros</th>
+<th>Top-1 Accuracy (ImageNet)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ResNet-50</td>
+<td>25.6M</td>
+<td>76.1%</td>
+</tr>
+<tr>
+<td>EfficientNet-B0</td>
+<td>5.3M</td>
+<td>77.1%</td>
+</tr>
+</tbody>
+</table>
+<p>A EfficientNet-B0 é <strong>mais precisa</strong> com <strong>5x menos parâmetros</strong>.</p>
+<h3 id="adaptive-average-pooling">Adaptive Average Pooling </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>self<span class="token punctuation">.</span>avgpool <span class="token operator">=</span> nn<span class="token punctuation">.</span>AdaptiveAvgPool2d<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre><p>O mapa de features tem shape <code>(batch, 1280, 12, 12)</code>. O <code>AdaptiveAvgPool2d((1, 1))</code> calcula a <strong>média de cada canal</strong> sobre todas as posições espaciais, resultando em <code>(batch, 1280, 1, 1)</code>:</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Canal 0:                    Canal 0 (após pooling):
+┌─────────────┐
+│ 0.2  0.5  0.3│            
+│ 0.1  0.8  0.4│  → média → [0.38]
+│ 0.3  0.6  0.2│
+└─────────────┘
+
+(isso acontece para cada um dos 1280 canais)
+</code></pre><p>Isso torna o modelo <strong>agnóstico à posição espacial</strong> — ele captura "o que está na imagem" sem se prender a "onde está" nessa resolução intermediária.</p>
+<h3 id="o-regressor-mlp">O Regressor (MLP) </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>self<span class="token punctuation">.</span>regressor <span class="token operator">=</span> nn<span class="token punctuation">.</span>Sequential<span class="token punctuation">(</span>
+    nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span><span class="token number">0.3</span><span class="token punctuation">)</span><span class="token punctuation">,</span>           <span class="token comment"># ①</span>
+    nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span><span class="token number">1280</span><span class="token punctuation">,</span> <span class="token number">512</span><span class="token punctuation">)</span><span class="token punctuation">,</span>      <span class="token comment"># ②</span>
+    nn<span class="token punctuation">.</span>BatchNorm1d<span class="token punctuation">(</span><span class="token number">512</span><span class="token punctuation">)</span><span class="token punctuation">,</span>       <span class="token comment"># ③</span>
+    nn<span class="token punctuation">.</span>LeakyReLU<span class="token punctuation">(</span><span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>         <span class="token comment"># ④</span>
+    nn<span class="token punctuation">.</span>Dropout<span class="token punctuation">(</span><span class="token number">0.2</span><span class="token punctuation">)</span><span class="token punctuation">,</span>           <span class="token comment"># ⑤</span>
+    nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span><span class="token number">512</span><span class="token punctuation">,</span> <span class="token number">128</span><span class="token punctuation">)</span><span class="token punctuation">,</span>       <span class="token comment"># ⑥</span>
+    nn<span class="token punctuation">.</span>BatchNorm1d<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">)</span><span class="token punctuation">,</span>       <span class="token comment"># ⑦</span>
+    nn<span class="token punctuation">.</span>LeakyReLU<span class="token punctuation">(</span><span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>         <span class="token comment"># ⑧</span>
+    nn<span class="token punctuation">.</span>Linear<span class="token punctuation">(</span><span class="token number">128</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span>          <span class="token comment"># ⑨</span>
+<span class="token punctuation">)</span>
+</code></pre><p>Cada camada explicada:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Camada</th>
+<th>O que faz</th>
+<th>Por que</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>①</td>
+<td><code>Dropout(0.3)</code></td>
+<td>Desliga 30% dos neurônios aleatoriamente durante o treino</td>
+<td>Previne overfitting — força a rede a não depender de neurônios específicos</td>
+</tr>
+<tr>
+<td>②</td>
+<td><code>Linear(1280, 512)</code></td>
+<td>Multiplicação matricial: transforma vetor de 1280 dims para 512</td>
+<td>Compressão de informação</td>
+</tr>
+<tr>
+<td>③</td>
+<td><code>BatchNorm1d(512)</code></td>
+<td>Normaliza os valores dentro de cada batch</td>
+<td>Estabiliza o treinamento e permite learning rates maiores</td>
+</tr>
+<tr>
+<td>④</td>
+<td><code>LeakyReLU(0.1)</code></td>
+<td>Função de ativação: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>0.1</mn><mi>x</mi><mo separator="true">,</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">f(x) = \max(0.1x, x)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord">0.1</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></td>
+<td>Introduz não-linearidade. "Leaky" permite gradiente pequeno para valores negativos, evitando "neurônios mortos"</td>
+</tr>
+<tr>
+<td>⑤</td>
+<td><code>Dropout(0.2)</code></td>
+<td>Desliga 20% dos neurônios</td>
+<td>Mais regularização, mas menos agressiva que a camada anterior</td>
+</tr>
+<tr>
+<td>⑥</td>
+<td><code>Linear(512, 128)</code></td>
+<td>Comprime de 512 para 128 dimensões</td>
+<td>Continua comprimindo a informação</td>
+</tr>
+<tr>
+<td>⑦</td>
+<td><code>BatchNorm1d(128)</code></td>
+<td>Normaliza novamente</td>
+<td>Estabilidade</td>
+</tr>
+<tr>
+<td>⑧</td>
+<td><code>LeakyReLU(0.1)</code></td>
+<td>Ativação não-linear</td>
+<td>Mesma função</td>
+</tr>
+<tr>
+<td>⑨</td>
+<td><code>Linear(128, 4)</code></td>
+<td>Camada final: 128 → 4 valores</td>
+<td>Produz os 4 números do bbox</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inicialização-inteligente-dos-biases">Inicialização inteligente dos biases </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>nn<span class="token punctuation">.</span>init<span class="token punctuation">.</span>constant_<span class="token punctuation">(</span>self<span class="token punctuation">.</span>regressor<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>bias<span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span>
+self<span class="token punctuation">.</span>regressor<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>bias<span class="token punctuation">.</span>data<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0.07</span>  <span class="token comment"># x1 ~ 7%</span>
+self<span class="token punctuation">.</span>regressor<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>bias<span class="token punctuation">.</span>data<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0.07</span>  <span class="token comment"># y1 ~ 7%</span>
+self<span class="token punctuation">.</span>regressor<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>bias<span class="token punctuation">.</span>data<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0.93</span>  <span class="token comment"># x2 ~ 93%</span>
+self<span class="token punctuation">.</span>regressor<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span>bias<span class="token punctuation">.</span>data<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0.93</span>  <span class="token comment"># y2 ~ 93%</span>
+</code></pre><p><strong>Por que isso é importante?</strong></p>
+<p>Sem essa inicialização, a rede começaria prevendo valores aleatórios — talvez <code>[0.5, 0.5, 0.5, 0.5]</code> (um retângulo de área zero). Isso geraria losses enormes no início e o treinamento demoraria muito para convergir.</p>
+<p>Com a inicialização em <code>[0.07, 0.07, 0.93, 0.93]</code>, a rede <strong>já começa prevendo um crop razoável</strong> (margem de ~7% em cada lado). A partir daí, ela só precisa <strong>refinar</strong> essas previsões, o que acelera significativamente a convergência.</p>
+<h3 id="forward-pass">Forward pass </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-def">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    x <span class="token operator">=</span> self<span class="token punctuation">.</span>features<span class="token punctuation">(</span>x<span class="token punctuation">)</span>           <span class="token comment"># EfficientNet extrai features</span>
+    x <span class="token operator">=</span> self<span class="token punctuation">.</span>avgpool<span class="token punctuation">(</span>x<span class="token punctuation">)</span>            <span class="token comment"># Pooling: (B, 1280, H, W) → (B, 1280, 1, 1)</span>
+    x <span class="token operator">=</span> torch<span class="token punctuation">.</span>flatten<span class="token punctuation">(</span>x<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>       <span class="token comment"># Achata: (B, 1280, 1, 1) → (B, 1280)</span>
+    <span class="token keyword keyword-return">return</span> torch<span class="token punctuation">.</span>sigmoid<span class="token punctuation">(</span>self<span class="token punctuation">.</span>regressor<span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token comment"># Regressor + Sigmoid</span>
+</code></pre><p>O <code>torch.sigmoid()</code> no final garante que a saída está sempre entre 0 e 1:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>σ</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>x</mi></mrow></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">\sigma(x) = \frac{1}{1 + e^{-x}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">σ</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.0908em;vertical-align:-0.7693em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6973em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight">x</span></span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.7693em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>Sem o sigmoid, a rede poderia prever valores como -0.3 ou 1.5, que não fazem sentido como coordenadas normalizadas.</p>
+<hr>
+<h2 id="9-funções-de-loss-perda">9. Funções de Loss (Perda) </h2>
+<p>As funções de loss (ou custo) medem <strong>o quão errada</strong> está a previsão do modelo. O otimizador usa esse valor para ajustar os pesos. Quanto menor a loss, melhor o modelo.</p>
+<h3 id="iou-loss">IoU Loss </h3>
+<p><strong>IoU (Intersection over Union)</strong> é a métrica padrão para avaliar a qualidade de bounding boxes.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-def">def</span> <span class="token function">iou_loss</span><span class="token punctuation">(</span>pred<span class="token punctuation">,</span> target<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    pred <span class="token operator">=</span> pred<span class="token punctuation">.</span>clamp<span class="token punctuation">(</span><span class="token number">1e-6</span><span class="token punctuation">,</span> <span class="token number">1</span> <span class="token operator">-</span> <span class="token number">1e-6</span><span class="token punctuation">)</span>
+    target <span class="token operator">=</span> target<span class="token punctuation">.</span>clamp<span class="token punctuation">(</span><span class="token number">1e-6</span><span class="token punctuation">,</span> <span class="token number">1</span> <span class="token operator">-</span> <span class="token number">1e-6</span><span class="token punctuation">)</span>
+    
+    x1 <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    y1 <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    x2 <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">min</span><span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    y2 <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">min</span><span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    
+    inter <span class="token operator">=</span> torch<span class="token punctuation">.</span>clamp<span class="token punctuation">(</span>x2 <span class="token operator">-</span> x1<span class="token punctuation">,</span> <span class="token builtin">min</span><span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> torch<span class="token punctuation">.</span>clamp<span class="token punctuation">(</span>y2 <span class="token operator">-</span> y1<span class="token punctuation">,</span> <span class="token builtin">min</span><span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>
+    pred_area <span class="token operator">=</span> <span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">-</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">-</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    target_area <span class="token operator">=</span> <span class="token punctuation">(</span>target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">-</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">-</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    
+    union <span class="token operator">=</span> pred_area <span class="token operator">+</span> target_area <span class="token operator">-</span> inter <span class="token operator">+</span> <span class="token number">1e-6</span>
+    iou <span class="token operator">=</span> inter <span class="token operator">/</span> union
+    <span class="token keyword keyword-return">return</span> <span class="token number">1</span> <span class="token operator">-</span> iou<span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre><h4 id="conceito-visual-do-iou">Conceito visual do IoU </h4>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>     Predição          Gabarito           Interseção
+   ┌──────────┐      ┌──────────┐      
+   │          │      │          │      ┌──────┐
+   │   ┌──────┼──┐   │  ┌───┐  │      │      │  ← Área em comum
+   │   │  ////│  │   │  │   │  │      │      │
+   │   │  ////│  │   │  └───┘  │      └──────┘
+   └───┼──────┘  │   │          │
+       └─────────┘   └──────────┘
+
+IoU = Área da Interseção / Área da União
+</code></pre><p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>I</mi><mi>o</mi><mi>U</mi><mo>=</mo><mfrac><mrow><mtext>Interse</mtext><mover accent="true"><mtext>c</mtext><mo>¸</mo></mover><mover accent="true"><mtext>a</mtext><mo>˜</mo></mover><mtext>o</mtext></mrow><mrow><mrow><mtext>Predi</mtext><mover accent="true"><mtext>c</mtext><mo>¸</mo></mover><mover accent="true"><mtext>a</mtext><mo>˜</mo></mover><mtext>o</mtext></mrow><mo>+</mo><mtext>Gabarito</mtext><mo>−</mo><mrow><mtext>Interse</mtext><mover accent="true"><mtext>c</mtext><mo>¸</mo></mover><mover accent="true"><mtext>a</mtext><mo>˜</mo></mover><mtext>o</mtext></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">IoU = \frac{\text{Interseção}}{\text{Predição} + \text{Gabarito} - \text{Interseção}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mord mathnormal">o</span><span class="mord mathnormal" style="margin-right:0.10903em;">U</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.2165em;vertical-align:-0.8561em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">Predi</span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.4306em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord">c</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">¸</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1701em;"><span></span></span></span></span></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6679em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord">a</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.25em;"><span class="mord">˜</span></span></span></span></span></span></span><span class="mord">o</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord text"><span class="mord">Gabarito</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord text"><span class="mord">Interse</span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.4306em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord">c</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">¸</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1701em;"><span></span></span></span></span></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6679em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord">a</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.25em;"><span class="mord">˜</span></span></span></span></span></span></span><span class="mord">o</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">Interse</span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.4306em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord">c</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">¸</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1701em;"><span></span></span></span></span></span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6679em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord">a</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.25em;"><span class="mord">˜</span></span></span></span></span></span></span><span class="mord">o</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8561em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<ul>
+<li><strong>IoU = 1.0</strong> → predição perfeita (100% de sobreposição)</li>
+<li><strong>IoU = 0.0</strong> → nenhuma sobreposição</li>
+</ul>
+<p>A loss é <code>1 - IoU</code>, então:</p>
+<ul>
+<li>Loss = 0 → perfeito</li>
+<li>Loss = 1 → péssimo</li>
+</ul>
+<h4 id="detalhamento-do-cálculo">Detalhamento do cálculo </h4>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token comment"># 1. Clamp para evitar divisão por zero ou logaritmos de zero</span>
+pred <span class="token operator">=</span> pred<span class="token punctuation">.</span>clamp<span class="token punctuation">(</span><span class="token number">1e-6</span><span class="token punctuation">,</span> <span class="token number">1</span> <span class="token operator">-</span> <span class="token number">1e-6</span><span class="token punctuation">)</span>
+
+<span class="token comment"># 2. Calcular a interseção dos dois retângulos</span>
+x1 <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>  <span class="token comment"># Borda esquerda mais à direita</span>
+y1 <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>  <span class="token comment"># Borda superior mais abaixo</span>
+x2 <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">min</span><span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span>  <span class="token comment"># Borda direita mais à esquerda</span>
+y2 <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">min</span><span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span>  <span class="token comment"># Borda inferior mais acima</span>
+
+<span class="token comment"># 3. Área da interseção (clamped para não ser negativa)</span>
+inter <span class="token operator">=</span> torch<span class="token punctuation">.</span>clamp<span class="token punctuation">(</span>x2 <span class="token operator">-</span> x1<span class="token punctuation">,</span> <span class="token builtin">min</span><span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> torch<span class="token punctuation">.</span>clamp<span class="token punctuation">(</span>y2 <span class="token operator">-</span> y1<span class="token punctuation">,</span> <span class="token builtin">min</span><span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>
+
+<span class="token comment"># 4. Áreas individuais</span>
+pred_area <span class="token operator">=</span> <span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">-</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">-</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+target_area <span class="token operator">=</span> <span class="token punctuation">(</span>target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">-</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">-</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+<span class="token comment"># 5. União = A + B - Interseção (+ epsilon para estabilidade numérica)</span>
+union <span class="token operator">=</span> pred_area <span class="token operator">+</span> target_area <span class="token operator">-</span> inter <span class="token operator">+</span> <span class="token number">1e-6</span>
+
+<span class="token comment"># 6. IoU e loss</span>
+iou <span class="token operator">=</span> inter <span class="token operator">/</span> union
+<span class="token keyword keyword-return">return</span> <span class="token number">1</span> <span class="token operator">-</span> iou<span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token punctuation">)</span>  <span class="token comment"># Média do batch</span>
+</code></pre><p>O <code>[:, 0]</code> significa "todos os exemplos do batch, coluna 0". Lembre-se que <code>pred</code> tem shape <code>(batch_size, 4)</code>.</p>
+<h3 id="margin-aware-loss">Margin-Aware Loss </h3>
+<p>Esta é a loss <strong>mais importante</strong> do projeto. Enquanto o IoU mede a sobreposição geral, o Margin-Aware Loss foca especificamente nas <strong>margens</strong> (o espaço entre a borda da imagem e o crop).</p>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-def">def</span> <span class="token function">margin_aware_loss</span><span class="token punctuation">(</span>pred<span class="token punctuation">,</span> target<span class="token punctuation">)</span><span class="token punctuation">:</span>
+</code></pre><h4 id="por-que-as-margens-importam">Por que as margens importam? </h4>
+<p>Considere dois crops com o mesmo IoU:</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Crop A (margens simétricas):      Crop B (margens assimétricas):
+┌────────────────────┐            ┌────────────────────┐
+│    ┌──────────┐    │            │┌──────────┐        │
+│    │          │    │            ││          │        │
+│    │  CONTEÚDO│    │            ││ CONTEÚDO │        │
+│    │          │    │            ││          │        │
+│    └──────────┘    │            │└──────────┘        │
+└────────────────────┘            └────────────────────┘
+      CORRETO ✓                      ERRADO ✗
+</code></pre><p>Ambos podem ter IoU alto, mas o Crop B tem as margens erradas — o conteúdo está deslocado para a esquerda. O Margin-Aware Loss detecta e penaliza isso.</p>
+<h4 id="como-funciona">Como funciona </h4>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token comment"># 1. Calcular as 4 margens (distância de cada borda do bbox até a borda da imagem)</span>
+pred_margins <span class="token operator">=</span> torch<span class="token punctuation">.</span>stack<span class="token punctuation">(</span><span class="token punctuation">[</span>
+    pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span>           <span class="token comment"># margem esquerda = x1</span>
+    pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>           <span class="token comment"># margem superior = y1</span>
+    <span class="token number">1.0</span> <span class="token operator">-</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>     <span class="token comment"># margem direita = 1 - x2</span>
+    <span class="token number">1.0</span> <span class="token operator">-</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span>      <span class="token comment"># margem inferior = 1 - y2</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+</code></pre><p>Visualização das margens:</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code> 0                    1
+ ├────── x1 ─────┬───── (1-x2) ────┤
+ │   margem      │     margem      │
+ │   esquerda    │     direita     │
+ │               │                 │
+</code></pre><pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token comment"># 2. Mesma coisa para o gabarito</span>
+target_margins <span class="token operator">=</span> torch<span class="token punctuation">.</span>stack<span class="token punctuation">(</span><span class="token punctuation">[</span>
+    target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token number">1.0</span> <span class="token operator">-</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">1.0</span> <span class="token operator">-</span> target<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+
+<span class="token comment"># 3. Calcular dimensões do conteúdo</span>
+content_width <span class="token operator">=</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">-</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span>   <span class="token comment"># largura do crop</span>
+content_height <span class="token operator">=</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">-</span> pred<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span>  <span class="token comment"># altura do crop</span>
+
+<span class="token comment"># 4. Erro relativo: diferença das margens normalizada pelo conteúdo</span>
+margin_error <span class="token operator">=</span> torch<span class="token punctuation">.</span><span class="token builtin">abs</span><span class="token punctuation">(</span>pred_margins <span class="token operator">-</span> target_margins<span class="token punctuation">)</span>
+margin_error<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">/=</span> <span class="token punctuation">(</span>content_width <span class="token operator">+</span> <span class="token number">1e-6</span><span class="token punctuation">)</span>   <span class="token comment"># esquerda / largura</span>
+margin_error<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">/=</span> <span class="token punctuation">(</span>content_width <span class="token operator">+</span> <span class="token number">1e-6</span><span class="token punctuation">)</span>    <span class="token comment"># direita / largura</span>
+margin_error<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">/=</span> <span class="token punctuation">(</span>content_height <span class="token operator">+</span> <span class="token number">1e-6</span><span class="token punctuation">)</span>   <span class="token comment"># topo / altura</span>
+margin_error<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">/=</span> <span class="token punctuation">(</span>content_height <span class="token operator">+</span> <span class="token number">1e-6</span><span class="token punctuation">)</span>   <span class="token comment"># baixo / altura</span>
+</code></pre><h4 id="por-que-normalizar-pelo-conteúdo">Por que normalizar pelo conteúdo? </h4>
+<p>Imagine duas situações:</p>
+<ul>
+<li><strong>Crop grande</strong> (80% da imagem): Uma margem errada de 2% é pouco perceptível.</li>
+<li><strong>Crop pequeno</strong> (20% da imagem): Uma margem errada de 2% é <strong>muito</strong> perceptível (pode ser 10% do tamanho do conteúdo!).</li>
+</ul>
+<p>A divisão pelo tamanho do conteúdo garante que <strong>erros em crops pequenos sejam penalizados proporcionalmente mais</strong>.</p>
+<h3 id="combined-loss">Combined Loss </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-def">def</span> <span class="token function">combined_loss</span><span class="token punctuation">(</span>pred<span class="token punctuation">,</span> target<span class="token punctuation">,</span> alpha<span class="token operator">=</span><span class="token number">0.5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword keyword-return">return</span> alpha <span class="token operator">*</span> iou_loss<span class="token punctuation">(</span>pred<span class="token punctuation">,</span> target<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token number">1</span> <span class="token operator">-</span> alpha<span class="token punctuation">)</span> <span class="token operator">*</span> margin_aware_loss<span class="token punctuation">(</span>pred<span class="token punctuation">,</span> target<span class="token punctuation">)</span>
+</code></pre><p>No treinamento, é usado <code>alpha=0.45</code>:</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="script">L</mi><mtext>total</mtext></msub><mo>=</mo><mn>0.45</mn><mo>×</mo><msub><mi mathvariant="script">L</mi><mtext>IoU</mtext></msub><mo>+</mo><mn>0.55</mn><mo>×</mo><msub><mi mathvariant="script">L</mi><mtext>margem</mtext></msub></mrow><annotation encoding="application/x-tex">\mathcal{L}_{\text{total}} = 0.45 \times \mathcal{L}_{\text{IoU}} + 0.55 \times \mathcal{L}_{\text{margem}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">total</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">0.45</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">IoU</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">0.55</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">margem</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<p>O peso ligeiramente maior na loss de margem (55% vs 45%) reflete a prioridade do projeto: <strong>a precisão das margens é mais importante que a sobreposição bruta</strong>.</p>
+<hr>
+<h2 id="10-função-train--o-loop-de-treinamento">10. Função <code>train()</code> — O Loop de Treinamento </h2>
+<h3 id="configurações">Configurações </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>IMG_SIZE <span class="token operator">=</span> <span class="token number">360</span>      <span class="token comment"># Resolução de entrada da rede</span>
+BATCH_SIZE <span class="token operator">=</span> <span class="token number">16</span>     <span class="token comment"># Quantas imagens processar de cada vez</span>
+NUM_WORKERS <span class="token operator">=</span> os<span class="token punctuation">.</span>cpu_count<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword keyword-or">or</span> <span class="token number">4</span>  <span class="token comment"># Threads para carregar dados em paralelo</span>
+EPOCHS <span class="token operator">=</span> <span class="token number">100</span>        <span class="token comment"># Máximo de passagens pelo dataset inteiro</span>
+PATIENCE <span class="token operator">=</span> <span class="token number">15</span>       <span class="token comment"># Quantas épocas sem melhora antes de parar</span>
+</code></pre><h4 id="o-que-é-um-batch">O que é um Batch? </h4>
+<p>Em vez de processar uma imagem por vez (lento) ou todas de uma vez (memória insuficiente), o treinamento processa <strong>batches</strong> (lotes) de imagens.</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Dataset: [img1, img2, img3, ..., img1000]
+
+Batch 1: [img1, img2, ..., img16]    → forward → loss → backward → atualiza pesos
+Batch 2: [img17, img18, ..., img32]  → forward → loss → backward → atualiza pesos
+...
+Batch 63: [img993, ..., img1000]     → forward → loss → backward → atualiza pesos
+
+↑ Isso é 1 ÉPOCA (uma passagem completa pelo dataset)
+</code></pre><h4 id="o-que-é-uma-época">O que é uma Época? </h4>
+<p>Uma <strong>época</strong> é uma passagem completa por <strong>todos</strong> os dados de treino. O modelo vê cada imagem exatamente uma vez por época. Normalmente são necessárias dezenas ou centenas de épocas para o modelo convergir.</p>
+<h3 id="carregamento-e-pareamento-dos-dados">Carregamento e Pareamento dos Dados </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>orig_files <span class="token operator">=</span> <span class="token builtin">sorted</span><span class="token punctuation">(</span><span class="token punctuation">[</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>orig_dir<span class="token punctuation">,</span> f<span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> f <span class="token keyword keyword-in">in</span> os<span class="token punctuation">.</span>listdir<span class="token punctuation">(</span>orig_dir<span class="token punctuation">)</span> 
+                    <span class="token keyword keyword-if">if</span> f<span class="token punctuation">.</span>lower<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>endswith<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token string">'.jpg'</span><span class="token punctuation">,</span> <span class="token string">'.jpeg'</span><span class="token punctuation">,</span> <span class="token string">'.png'</span><span class="token punctuation">,</span> <span class="token string">'.bmp'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+crop_files <span class="token operator">=</span> <span class="token builtin">sorted</span><span class="token punctuation">(</span><span class="token punctuation">[</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>crop_dir<span class="token punctuation">,</span> f<span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> f <span class="token keyword keyword-in">in</span> os<span class="token punctuation">.</span>listdir<span class="token punctuation">(</span>crop_dir<span class="token punctuation">)</span>
+                    <span class="token keyword keyword-if">if</span> f<span class="token punctuation">.</span>lower<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>endswith<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token string">'.jpg'</span><span class="token punctuation">,</span> <span class="token string">'.jpeg'</span><span class="token punctuation">,</span> <span class="token string">'.png'</span><span class="token punctuation">,</span> <span class="token string">'.bmp'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword keyword-and">and</span> <span class="token string">'_editado'</span> <span class="token keyword keyword-in">in</span> f<span class="token punctuation">.</span>lower<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre><ol>
+<li>Lista todas as imagens originais em <code>dataset/origin/</code>.</li>
+<li>Lista todas as imagens recortadas em <code>dataset/cropped/</code> (que contenham <code>_editado</code> no nome).</li>
+</ol>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>orig_dict <span class="token operator">=</span> <span class="token punctuation">{</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>splitext<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>basename<span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">'_editado'</span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">:</span> f <span class="token keyword keyword-for">for</span> f <span class="token keyword keyword-in">in</span> orig_files<span class="token punctuation">}</span>
+crop_dict <span class="token operator">=</span> <span class="token punctuation">{</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>splitext<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>basename<span class="token punctuation">(</span>f<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">'_editado'</span><span class="token punctuation">,</span> <span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">:</span> f <span class="token keyword keyword-for">for</span> f <span class="token keyword keyword-in">in</span> crop_files<span class="token punctuation">}</span>
+common_names <span class="token operator">=</span> <span class="token builtin">set</span><span class="token punctuation">(</span>orig_dict<span class="token punctuation">.</span>keys<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token builtin">set</span><span class="token punctuation">(</span>crop_dict<span class="token punctuation">.</span>keys<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre><ol start="3">
+<li>Cria dicionários <code>{nome_base: caminho_completo}</code> para originais e crops.</li>
+<li>Encontra os <strong>nomes em comum</strong> (interseção de conjuntos) — garante que só usa pares completos.</li>
+</ol>
+<p><strong>Exemplo:</strong></p>
+<ul>
+<li><code>dataset/origin/foto001.jpg</code> → chave <code>"foto001"</code></li>
+<li><code>dataset/cropped/foto001_editado.jpg</code> → chave <code>"foto001"</code></li>
+<li>Ambos existem → par válido.</li>
+</ul>
+<h3 id="divisão-treinovalidação">Divisão Treino/Validação </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>train_orig<span class="token punctuation">,</span> val_orig<span class="token punctuation">,</span> train_crop<span class="token punctuation">,</span> val_crop<span class="token punctuation">,</span> train_bbox<span class="token punctuation">,</span> val_bbox <span class="token operator">=</span> train_test_split<span class="token punctuation">(</span>
+    orig_paths<span class="token punctuation">,</span> crop_paths<span class="token punctuation">,</span> bbox_data<span class="token punctuation">,</span> test_size<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">,</span> random_state<span class="token operator">=</span><span class="token number">42</span>
+<span class="token punctuation">)</span>
+</code></pre><ul>
+<li><strong>90% para treino</strong> — o modelo aprende com esses dados.</li>
+<li><strong>10% para validação</strong> — o modelo é avaliado com dados que <strong>nunca viu</strong> durante o treino.</li>
+<li><strong><code>random_state=42</code></strong> — semente fixa para reprodutibilidade. O mesmo split sempre produz os mesmos conjuntos.</li>
+</ul>
+<h3 id="por-que-separar-treino-e-validação">Por que separar treino e validação? </h3>
+<p>Se avaliarmos o modelo nos mesmos dados em que ele treinou, ele pode ter <strong>decorado</strong> os dados (overfitting) e parecer perfeito, mas falhar em imagens novas. A validação simula o cenário real.</p>
+<h3 id="dataloader">DataLoader </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>train_loader <span class="token operator">=</span> DataLoader<span class="token punctuation">(</span>
+    train_dataset<span class="token punctuation">,</span> batch_size<span class="token operator">=</span>BATCH_SIZE<span class="token punctuation">,</span> shuffle<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> drop_last<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>
+    num_workers<span class="token operator">=</span>NUM_WORKERS<span class="token punctuation">,</span> pin_memory<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> prefetch_factor<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">,</span> persistent_workers<span class="token operator">=</span><span class="token boolean">True</span>
+<span class="token punctuation">)</span>
+</code></pre><table>
+<thead>
+<tr>
+<th>Parâmetro</th>
+<th>Valor</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>batch_size</code></td>
+<td>16</td>
+<td>Quantas imagens por batch</td>
+</tr>
+<tr>
+<td><code>shuffle</code></td>
+<td>True</td>
+<td>Embaralha a ordem dos dados a cada época (evita viés de ordenação)</td>
+</tr>
+<tr>
+<td><code>drop_last</code></td>
+<td>True</td>
+<td>Descarta o último batch se for incompleto (evita problemas com BatchNorm)</td>
+</tr>
+<tr>
+<td><code>num_workers</code></td>
+<td>CPU count</td>
+<td>Quantas threads pré-carregam dados em paralelo</td>
+</tr>
+<tr>
+<td><code>pin_memory</code></td>
+<td>True</td>
+<td>Reserva memória "pinada" para transferência CPU→GPU mais rápida</td>
+</tr>
+<tr>
+<td><code>prefetch_factor</code></td>
+<td>2</td>
+<td>Pré-carrega 2 batches por worker enquanto a GPU processa o batch atual</td>
+</tr>
+<tr>
+<td><code>persistent_workers</code></td>
+<td>True</td>
+<td>Mantém os workers vivos entre as épocas (evita overhead de criação/destruição de threads)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="otimizador-adamw">Otimizador AdamW </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>optimizer <span class="token operator">=</span> optim<span class="token punctuation">.</span>AdamW<span class="token punctuation">(</span>model<span class="token punctuation">.</span>parameters<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> lr<span class="token operator">=</span><span class="token number">3e-4</span><span class="token punctuation">,</span> weight_decay<span class="token operator">=</span><span class="token number">1e-4</span><span class="token punctuation">)</span>
+</code></pre><ul>
+<li><strong>AdamW</strong> é uma variante do Adam que aplica weight decay (regularização L2) de forma <strong>desacoplada</strong> dos gradientes, resultando em melhor generalização.</li>
+<li><strong><code>lr=3e-4</code> (0.0003)</strong> — Learning rate: o quão "agressivamente" os pesos são atualizados a cada passo. Muito alto → instabilidade. Muito baixo → demora para convergir.</li>
+<li><strong><code>weight_decay=1e-4</code></strong> — Penalidade proporcional ao tamanho dos pesos. Evita que os pesos cresçam demais (regularização).</li>
+</ul>
+<h3 id="scheduler-agendador-de-learning-rate">Scheduler (Agendador de Learning Rate) </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>scheduler <span class="token operator">=</span> optim<span class="token punctuation">.</span>lr_scheduler<span class="token punctuation">.</span>ReduceLROnPlateau<span class="token punctuation">(</span>
+    optimizer<span class="token punctuation">,</span> mode<span class="token operator">=</span><span class="token string">'min'</span><span class="token punctuation">,</span> factor<span class="token operator">=</span><span class="token number">0.5</span><span class="token punctuation">,</span> patience<span class="token operator">=</span><span class="token number">6</span>
+<span class="token punctuation">)</span>
+</code></pre><p>Quando a loss de validação <strong>para de melhorar por 6 épocas</strong>, o scheduler <strong>divide a learning rate pela metade</strong> (<code>factor=0.5</code>).</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Época 1-20:  lr = 0.0003    (learning rate inicial)
+Época 21-26: lr = 0.0003    (loss estagnou, mas patience = 6)
+Época 27:    lr = 0.00015   (redução! optimizer atualiza com passos menores)
+...
+</code></pre><p>A lógica é: no início, passos grandes encontram a região certa; depois, passos menores refinam o resultado.</p>
+<h3 id="mixed-precision-precisão-mista">Mixed Precision (Precisão Mista) </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>scaler <span class="token operator">=</span> torch<span class="token punctuation">.</span>cuda<span class="token punctuation">.</span>amp<span class="token punctuation">.</span>GradScaler<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword keyword-if">if</span> torch<span class="token punctuation">.</span>cuda<span class="token punctuation">.</span>is_available<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword keyword-else">else</span> <span class="token boolean">None</span>
+</code></pre><h4 id="o-que-é-mixed-precision">O que é Mixed Precision? </h4>
+<p>Por padrão, todos os cálculos usam <strong>float32</strong> (32 bits por número). Mixed Precision alterna entre:</p>
+<ul>
+<li><strong>float16</strong> (16 bits) — para o forward pass e cálculos intermediários (mais rápido, menos memória)</li>
+<li><strong>float32</strong> (32 bits) — para acumulação de gradientes e atualização de pesos (precisão necessária)</li>
+</ul>
+<p><strong>Benefícios:</strong></p>
+<ul>
+<li>Quase <strong>2x mais rápido</strong> em GPUs com Tensor Cores (RTX 3060 Ti tem!)</li>
+<li>Usa <strong>~metade da memória</strong> de VRAM</li>
+<li>Sem perda perceptível de qualidade</li>
+</ul>
+<p>O <code>GradScaler</code> é necessário porque gradientes em float16 podem ser pequenos demais (underflow). Ele <strong>escala</strong> os gradientes antes do backward e <strong>des-escala</strong> antes da atualização.</p>
+<h3 id="o-loop-de-treinamento-por-época">O Loop de Treinamento (por época) </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-for">for</span> epoch <span class="token keyword keyword-in">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>EPOCHS<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># ===== TREINO =====</span>
+    model<span class="token punctuation">.</span>train<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    train_loss <span class="token operator">=</span> <span class="token number">0.0</span>
+    
+    <span class="token keyword keyword-for">for</span> inputs<span class="token punctuation">,</span> targets <span class="token keyword keyword-in">in</span> tqdm<span class="token punctuation">(</span>train_loader<span class="token punctuation">,</span> desc<span class="token operator">=</span><span class="token string-interpolation"><span class="token string">f"Epoch </span><span class="token interpolation"><span class="token punctuation">{</span>epoch<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">}</span></span><span class="token string">/</span><span class="token interpolation"><span class="token punctuation">{</span>EPOCHS<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">,</span> leave<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        inputs<span class="token punctuation">,</span> targets <span class="token operator">=</span> inputs<span class="token punctuation">.</span>to<span class="token punctuation">(</span>DEVICE<span class="token punctuation">,</span> non_blocking<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">,</span> targets<span class="token punctuation">.</span>to<span class="token punctuation">(</span>DEVICE<span class="token punctuation">,</span> non_blocking<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+        
+        optimizer<span class="token punctuation">.</span>zero_grad<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        
+        <span class="token keyword keyword-if">if</span> scaler<span class="token punctuation">:</span>
+            <span class="token keyword keyword-with">with</span> torch<span class="token punctuation">.</span>cuda<span class="token punctuation">.</span>amp<span class="token punctuation">.</span>autocast<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+                preds <span class="token operator">=</span> model<span class="token punctuation">(</span>inputs<span class="token punctuation">)</span>
+                loss <span class="token operator">=</span> combined_loss<span class="token punctuation">(</span>preds<span class="token punctuation">,</span> targets<span class="token punctuation">,</span> alpha<span class="token operator">=</span><span class="token number">0.45</span><span class="token punctuation">)</span>
+            scaler<span class="token punctuation">.</span>scale<span class="token punctuation">(</span>loss<span class="token punctuation">)</span><span class="token punctuation">.</span>backward<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            scaler<span class="token punctuation">.</span>unscale_<span class="token punctuation">(</span>optimizer<span class="token punctuation">)</span>
+            torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>clip_grad_norm_<span class="token punctuation">(</span>model<span class="token punctuation">.</span>parameters<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> max_norm<span class="token operator">=</span><span class="token number">1.0</span><span class="token punctuation">)</span>
+            scaler<span class="token punctuation">.</span>step<span class="token punctuation">(</span>optimizer<span class="token punctuation">)</span>
+            scaler<span class="token punctuation">.</span>update<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword keyword-else">else</span><span class="token punctuation">:</span>
+            preds <span class="token operator">=</span> model<span class="token punctuation">(</span>inputs<span class="token punctuation">)</span>
+            loss <span class="token operator">=</span> combined_loss<span class="token punctuation">(</span>preds<span class="token punctuation">,</span> targets<span class="token punctuation">,</span> alpha<span class="token operator">=</span><span class="token number">0.45</span><span class="token punctuation">)</span>
+            loss<span class="token punctuation">.</span>backward<span class="token punctuation">(</span><span class="token punctuation">)</span>
+            torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>clip_grad_norm_<span class="token punctuation">(</span>model<span class="token punctuation">.</span>parameters<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> max_norm<span class="token operator">=</span><span class="token number">1.0</span><span class="token punctuation">)</span>
+            optimizer<span class="token punctuation">.</span>step<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        
+        train_loss <span class="token operator">+=</span> loss<span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre><h4 id="dissecando-cada-linha">Dissecando cada linha: </h4>
+<p><strong><code>model.train()</code></strong> — Ativa o modo de treinamento. Isso habilita Dropout (desligamento aleatório de neurônios) e BatchNorm (usa estatísticas do batch). No modo <code>eval()</code>, Dropout é desativado e BatchNorm usa estatísticas acumuladas.</p>
+<p><strong><code>inputs.to(DEVICE, non_blocking=True)</code></strong> — Move os dados para a GPU. <code>non_blocking=True</code> permite que a transferência seja assíncrona (a CPU não espera a GPU terminar de receber os dados).</p>
+<p><strong><code>optimizer.zero_grad()</code></strong> — Zera os gradientes acumulados. Sem isso, os gradientes do batch anterior se somariam aos novos (comportamento indesejado na maioria dos casos).</p>
+<p><strong>Forward pass com autocast:</strong></p>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-with">with</span> torch<span class="token punctuation">.</span>cuda<span class="token punctuation">.</span>amp<span class="token punctuation">.</span>autocast<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    preds <span class="token operator">=</span> model<span class="token punctuation">(</span>inputs<span class="token punctuation">)</span>           <span class="token comment"># Modelo prevê [x1, y1, x2, y2]</span>
+    loss <span class="token operator">=</span> combined_loss<span class="token punctuation">(</span>preds<span class="token punctuation">,</span> targets<span class="token punctuation">,</span> alpha<span class="token operator">=</span><span class="token number">0.45</span><span class="token punctuation">)</span>  <span class="token comment"># Calcula o erro</span>
+</code></pre><p><code>autocast()</code> converte automaticamente operações para float16 quando seguro e mantém float32 quando necessário.</p>
+<p><strong>Backward pass:</strong></p>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>scaler<span class="token punctuation">.</span>scale<span class="token punctuation">(</span>loss<span class="token punctuation">)</span><span class="token punctuation">.</span>backward<span class="token punctuation">(</span><span class="token punctuation">)</span>       <span class="token comment"># Escala a loss e calcula gradientes</span>
+scaler<span class="token punctuation">.</span>unscale_<span class="token punctuation">(</span>optimizer<span class="token punctuation">)</span>          <span class="token comment"># Des-escala para gradient clipping</span>
+torch<span class="token punctuation">.</span>nn<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>clip_grad_norm_<span class="token punctuation">(</span>model<span class="token punctuation">.</span>parameters<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> max_norm<span class="token operator">=</span><span class="token number">1.0</span><span class="token punctuation">)</span>  <span class="token comment"># Limita gradientes</span>
+scaler<span class="token punctuation">.</span>step<span class="token punctuation">(</span>optimizer<span class="token punctuation">)</span>              <span class="token comment"># Atualiza pesos</span>
+scaler<span class="token punctuation">.</span>update<span class="token punctuation">(</span><span class="token punctuation">)</span>                     <span class="token comment"># Ajusta fator de escala para próxima iteração</span>
+</code></pre><p><strong>Gradient Clipping:</strong> Se os gradientes forem muito grandes (explosão de gradientes), são cortados para no máximo norma 1.0. Isso evita instabilidade no treinamento:</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Sem clipping:     gradiente = [100, -200, 50]  → pesos mudam drasticamente → instabilidade
+Com clipping(1.0): gradiente = [0.41, -0.82, 0.41]  → atualização controlada
+</code></pre><h3 id="a-validação">A Validação </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>model<span class="token punctuation">.</span><span class="token builtin">eval</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+val_loss <span class="token operator">=</span> <span class="token number">0.0</span>
+val_iou <span class="token operator">=</span> <span class="token number">0.0</span>
+val_margin_error <span class="token operator">=</span> <span class="token number">0.0</span>
+
+<span class="token keyword keyword-with">with</span> torch<span class="token punctuation">.</span>no_grad<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword keyword-for">for</span> inputs<span class="token punctuation">,</span> targets <span class="token keyword keyword-in">in</span> val_loader<span class="token punctuation">:</span>
+        <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+        preds <span class="token operator">=</span> model<span class="token punctuation">(</span>inputs<span class="token punctuation">)</span>
+        loss <span class="token operator">=</span> combined_loss<span class="token punctuation">(</span>preds<span class="token punctuation">,</span> targets<span class="token punctuation">,</span> alpha<span class="token operator">=</span><span class="token number">0.45</span><span class="token punctuation">)</span>
+        
+        val_loss <span class="token operator">+=</span> loss<span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> inputs<span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+</code></pre><p><strong><code>model.eval()</code></strong> — Desativa Dropout e BatchNorm em modo de treino. Importante: o modelo se comporta <strong>diferente</strong> nos modos <code>train()</code> e <code>eval()</code>.</p>
+<p><strong><code>torch.no_grad()</code></strong> — Desativa o cálculo de gradientes. Na validação, não precisamos de gradientes (não estamos atualizando pesos), então economizamos memória e computação.</p>
+<p><strong><code>loss.item() * inputs.size(0)</code></strong> — Multiplica o loss médio pelo número de exemplos no batch para acumular corretamente quando os batches têm tamanhos diferentes.</p>
+<h3 id="métricas-calculadas-na-validação">Métricas calculadas na validação </h3>
+<ol>
+<li><strong>Val Loss</strong> — Loss combinada (IoU + margens) sobre os dados de validação.</li>
+<li><strong>Val IoU</strong> — IoU médio entre predições e gabaritos.</li>
+<li><strong>Margin Error</strong> — Erro médio relativo das margens.</li>
+</ol>
+<h3 id="early-stopping">Early Stopping </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-if">if</span> avg_val_loss <span class="token operator">&lt;</span> best_loss<span class="token punctuation">:</span>
+    best_loss <span class="token operator">=</span> avg_val_loss
+    patience_counter <span class="token operator">=</span> <span class="token number">0</span>
+    torch<span class="token punctuation">.</span>save<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"models/best_model.pth"</span><span class="token punctuation">)</span>
+<span class="token keyword keyword-else">else</span><span class="token punctuation">:</span>
+    patience_counter <span class="token operator">+=</span> <span class="token number">1</span>
+    <span class="token keyword keyword-if">if</span> patience_counter <span class="token operator">&gt;=</span> PATIENCE<span class="token punctuation">:</span>
+        log<span class="token punctuation">.</span>info<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"Early stopping ativado após </span><span class="token interpolation"><span class="token punctuation">{</span>epoch<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">}</span></span><span class="token string"> épocas"</span></span><span class="token punctuation">)</span>
+        <span class="token keyword keyword-break">break</span>
+</code></pre><p><strong>Conceito:</strong> O modelo melhora rapidamente no início, mas depois de certo ponto começa a <strong>decorar</strong> os dados de treino. O sinal disso é que a loss de treino continua caindo, mas a <strong>loss de validação para de cair</strong> (ou sobe).</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>Loss de treino:    ──────────────────►   (sempre desce)
+Loss de validação: ──────────┐
+                             │ ← overfitting começa aqui
+                             └───────►  (começa a subir)
+                             
+                         │ PATIENCE │
+                         │ 15 epochs│
+                         └──────────┘
+                              ↓
+                        PARA O TREINO
+</code></pre><p>Early stopping monitora a loss de validação e <strong>para o treinamento</strong> depois de 15 épocas sem melhora, evitando overfitting e economizando tempo.</p>
+<h3 id="o-que-é-salvo-no-modelo">O que é salvo no modelo </h3>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code>torch<span class="token punctuation">.</span>save<span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token string">'model_state_dict'</span><span class="token punctuation">:</span> model<span class="token punctuation">.</span>state_dict<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  <span class="token comment"># Todos os pesos da rede</span>
+    <span class="token string">'val_loss'</span><span class="token punctuation">:</span> best_loss<span class="token punctuation">,</span>                    <span class="token comment"># Melhor loss alcançada</span>
+    <span class="token string">'iou'</span><span class="token punctuation">:</span> avg_iou<span class="token punctuation">,</span>                           <span class="token comment"># IoU no momento do salvamento</span>
+    <span class="token string">'margin_error'</span><span class="token punctuation">:</span> avg_margin_err<span class="token punctuation">,</span>           <span class="token comment"># Erro de margem</span>
+    <span class="token string">'img_size'</span><span class="token punctuation">:</span> IMG_SIZE<span class="token punctuation">,</span>                     <span class="token comment"># Tamanho de entrada (para inferência)</span>
+    <span class="token string">'epoch'</span><span class="token punctuation">:</span> epoch <span class="token operator">+</span> <span class="token number">1</span>                        <span class="token comment"># Época em que foi salvo</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"models/best_model.pth"</span><span class="token punctuation">)</span>
+</code></pre><p>O <code>state_dict()</code> contém <strong>apenas os pesos</strong> da rede (não a arquitetura). Para carregar o modelo depois, você precisa:</p>
+<ol>
+<li>Criar uma instância de <code>MarginAwareCropModel()</code>.</li>
+<li>Carregar o <code>state_dict</code> nela com <code>model.load_state_dict(checkpoint['model_state_dict'])</code>.</li>
+</ol>
+<hr>
+<h2>11. Ponto de Entrada (<code>__main__</code>) {#11-ponto-de-entrada-<strong>main</strong> }</h2>
+<pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-if">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    _setup_logging<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    start_time <span class="token operator">=</span> time<span class="token punctuation">.</span>time<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    train<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    end_time <span class="token operator">=</span> time<span class="token punctuation">.</span>time<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    elapsed_time <span class="token operator">=</span> end_time <span class="token operator">-</span> start_time
+    elapsed_hms <span class="token operator">=</span> time<span class="token punctuation">.</span>strftime<span class="token punctuation">(</span><span class="token string">"%H:%M:%S"</span><span class="token punctuation">,</span> time<span class="token punctuation">.</span>gmtime<span class="token punctuation">(</span>elapsed_time<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    log<span class="token punctuation">.</span>info<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"Tempo total de execução: </span><span class="token interpolation"><span class="token punctuation">{</span>elapsed_hms<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+</code></pre><ol>
+<li><strong><code>if __name__ == "__main__"</code></strong> — Garante que o código só executa quando o script é rodado diretamente (<code>python train.py</code>), não quando é importado como módulo.</li>
+<li><strong><code>_setup_logging()</code></strong> — Configura os handlers de log (terminal + arquivo).</li>
+<li><strong>Mede o tempo total</strong> do treinamento e exibe no formato HH:MM:SS.</li>
+</ol>
+<hr>
+<h2 id="12-glossário-de-conceitos">12. Glossário de Conceitos </h2>
+<table>
+<thead>
+<tr>
+<th>Conceito</th>
+<th>Explicação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Backbone</strong></td>
+<td>A parte principal de uma rede neural que extrai features das imagens. Neste caso, a EfficientNet-B0.</td>
+</tr>
+<tr>
+<td><strong>Batch</strong></td>
+<td>Um subconjunto dos dados processado de uma vez. Exemplo: 16 imagens de um dataset de 1000.</td>
+</tr>
+<tr>
+<td><strong>BatchNorm</strong></td>
+<td>Normaliza os valores dentro de cada batch para ter média 0 e desvio 1. Estabiliza o treinamento.</td>
+</tr>
+<tr>
+<td><strong>Bounding Box (bbox)</strong></td>
+<td>Retângulo definido por 4 coordenadas [x1, y1, x2, y2] que delimita uma região de interesse.</td>
+</tr>
+<tr>
+<td><strong>Convergência</strong></td>
+<td>Quando o modelo para de melhorar significativamente — a loss estabiliza.</td>
+</tr>
+<tr>
+<td><strong>Dropout</strong></td>
+<td>Técnica que desliga neurônios aleatoriamente durante o treino para evitar overfitting.</td>
+</tr>
+<tr>
+<td><strong>Early Stopping</strong></td>
+<td>Para o treinamento quando a validação para de melhorar, evitando overfitting.</td>
+</tr>
+<tr>
+<td><strong>Época (Epoch)</strong></td>
+<td>Uma passagem completa por todos os dados de treino.</td>
+</tr>
+<tr>
+<td><strong>Forward Pass</strong></td>
+<td>O caminho "para frente": dados entram no modelo e uma previsão sai.</td>
+</tr>
+<tr>
+<td><strong>Backward Pass</strong></td>
+<td>O caminho "para trás": o erro (loss) é propagado de volta pela rede, calculando gradientes.</td>
+</tr>
+<tr>
+<td><strong>Gradiente</strong></td>
+<td>A direção e intensidade em que cada peso precisa ser ajustado para reduzir a loss.</td>
+</tr>
+<tr>
+<td><strong>Ground Truth</strong></td>
+<td>O "gabarito" — o valor correto que o modelo deveria prever.</td>
+</tr>
+<tr>
+<td><strong>IoU</strong></td>
+<td>Intersection over Union. Mede a sobreposição entre dois retângulos (0 = nenhuma, 1 = perfeita).</td>
+</tr>
+<tr>
+<td><strong>Learning Rate</strong></td>
+<td>O tamanho do "passo" que o otimizador dá ao ajustar os pesos. Muito grande → instável. Muito pequeno → lento.</td>
+</tr>
+<tr>
+<td><strong>Loss (perda)</strong></td>
+<td>Um número que mede o quão errado o modelo está. O objetivo é minimizá-lo.</td>
+</tr>
+<tr>
+<td><strong>Mixed Precision</strong></td>
+<td>Usar float16 e float32 juntos para acelerar o treinamento sem perder qualidade.</td>
+</tr>
+<tr>
+<td><strong>Normalização</strong></td>
+<td>Ajustar os valores para uma escala padrão (ex: 0-1, ou média 0 / desvio 1).</td>
+</tr>
+<tr>
+<td><strong>Overfitting</strong></td>
+<td>Quando o modelo "decora" os dados de treino e perde a capacidade de generalizar para dados novos.</td>
+</tr>
+<tr>
+<td><strong>Regularização</strong></td>
+<td>Técnicas para evitar overfitting: Dropout, weight decay, early stopping, etc.</td>
+</tr>
+<tr>
+<td><strong>Sigmoid</strong></td>
+<td>Função que comprime qualquer valor para o intervalo (0, 1). Fórmula: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>x</mi></mrow></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">\sigma(x) = \frac{1}{1+e^{-x}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">σ</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2484em;vertical-align:-0.4033em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mbin mtight">+</span><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7027em;"><span style="top:-2.786em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight">x</span></span></span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4033em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></td>
+</tr>
+<tr>
+<td><strong>State Dict</strong></td>
+<td>Dicionário com todos os pesos treinados de uma rede neural. Pode ser salvo e carregado.</td>
+</tr>
+<tr>
+<td><strong>Template Matching</strong></td>
+<td>Técnica de visão computacional que encontra uma imagem menor dentro de uma maior por correlação.</td>
+</tr>
+<tr>
+<td><strong>Tensor</strong></td>
+<td>Array multidimensional — a unidade básica de dados no PyTorch. Similar a arrays NumPy, mas roda na GPU.</td>
+</tr>
+<tr>
+<td><strong>Transfer Learning</strong></td>
+<td>Reutilizar um modelo treinado em outra tarefa como ponto de partida. Economiza tempo e dados.</td>
+</tr>
+<tr>
+<td><strong>Weight Decay</strong></td>
+<td>Penalidade que reduz o tamanho dos pesos da rede a cada passo. Forma de regularização.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="fluxo-completo-resumido">Fluxo Completo Resumido </h2>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>1. Carregar caminhos de imagens originais e recortadas
+                    │
+2. Parear pelo nome (foto001.jpg ↔ foto001_editado.jpg)
+                    │
+3. Calcular bounding boxes via Template Matching (com cache)
+                    │
+4. Dividir em 90% treino + 10% validação
+                    │
+5. Criar DataLoaders (batches de 16 imagens, shuffle, workers paralelos)
+                    │
+6. Criar modelo EfficientNet-B0 + Regressor (com pesos ImageNet)
+                    │
+7. Para cada época (até 100):
+   │
+   ├── TREINO: Forward → Loss → Backward → Atualizar pesos
+   │
+   ├── VALIDAÇÃO: Forward → Loss → Métricas (sem atualizar pesos)
+   │
+   ├── Se melhorou → salvar modelo
+   │
+   └── Se 15 épocas sem melhora → parar (Early Stopping)
+                    │
+8. Modelo final salvo em models/best_model.pth
+</code></pre>
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+  
+    </body></html>

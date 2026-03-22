@@ -1,3 +1,4 @@
+import argparse
 import datetime
 import logging
 import os
@@ -215,7 +216,10 @@ def _process(model: MarginAwareCropModel, img_size: int, path: str, is_folder: b
             if errors:
                 msg += f"\n\nPrimeiros erros:\n" + "\n".join(errors[:3])
 
-            messagebox.showinfo("Concluído", msg)
+            try:
+                messagebox.showinfo("Concluído", msg)
+            except Exception:
+                pass
 
         else:
             cropped, coords = predict_crop(model, path, img_size)
@@ -226,40 +230,63 @@ def _process(model: MarginAwareCropModel, img_size: int, path: str, is_folder: b
             out_path = os.path.join(output_dir, f"{base}_editado.jpg")
             cv2.imwrite(out_path, cropped, [int(cv2.IMWRITE_JPEG_QUALITY), 98])
 
-            messagebox.showinfo(
-                "Sucesso",
-                f"Imagem cortada!\n\n"
-                f"Coordenadas: x={coords[0]} y={coords[1]} w={coords[2]} h={coords[3]}\n"
-                f"Salva em: {out_path}"
-            )
+            try:
+                messagebox.showinfo(
+                    "Sucesso",
+                    f"Imagem cortada!\n\n"
+                    f"Coordenadas: x={coords[0]} y={coords[1]} w={coords[2]} h={coords[3]}\n"
+                    f"Salva em: {out_path}"
+                )
+            except Exception:
+                pass
 
     except Exception as e:
         log.error(f"Erro durante processamento: {e}", exc_info=True)
-        messagebox.showerror("Erro", f"Erro durante processamento:\n{str(e)}")
+        try:
+            messagebox.showerror("Erro", f"Erro durante processamento:\n{str(e)}")
+        except Exception:
+            pass
 
 
 def main():
-    root = tk.Tk()
-    root.withdraw()
+    parser = argparse.ArgumentParser(description='ML Crop - Predição de corte')
+    parser.add_argument('path', nargs='?', default=None,
+                        help='Caminho da pasta ou imagem (ignora diálogos GUI)')
+    parser.add_argument('--batch', action='store_true',
+                        help='Modo batch (pasta inteira)')
+    args = parser.parse_args()
+
+    headless = args.path is not None
+
+    if not headless:
+        root = tk.Tk()
+        root.withdraw()
 
     try:
         model, img_size, train_iou, train_margin_err = _load_model()
     except Exception as e:
         log.error(f"Falha ao carregar modelo: {e}", exc_info=True)
-        messagebox.showerror("Erro Fatal", f"Não foi possível carregar o modelo:\n{str(e)}")
-        root.destroy()
+        if not headless:
+            messagebox.showerror("Erro Fatal", f"Não foi possível carregar o modelo:\n{str(e)}")
+            root.destroy()
         return
 
     log.info(f"Device: {DEVICE}")
 
-    is_folder = _choose_mode(root)
-    path = _choose_path(root, is_folder)
-    if not path:
-        root.destroy()
-        return
+    if headless:
+        path = args.path
+        is_folder = args.batch or os.path.isdir(path)
+    else:
+        is_folder = _choose_mode(root)
+        path = _choose_path(root, is_folder)
+        if not path:
+            root.destroy()
+            return
 
     _process(model, img_size, path, is_folder)
-    root.destroy()
+
+    if not headless:
+        root.destroy()
 
 
 if __name__ == "__main__":
